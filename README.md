@@ -97,11 +97,11 @@ PDF -> PyMuPDF -> blocks and images in reading order
                   headers/footers dropped, hyphenation healed,
                   paragraphs rejoined across page breaks
     -> spaCy   -> lemma, part of speech, morphology, sentence boundaries
-    -> JSONL   -> Rails bulk-inserts blocks, sentences, tokens, lemmas
+    -> JSONL   -> Rails bulk-inserts blocks, sentences, lemmas, lemma rollups
 ```
 
-A 273-page novel comes out as roughly 2,200 blocks and 158,000 tokens in about 30
-seconds. Only word tokens get rows; punctuation stays in the block text and is
+A 273-page novel comes out as roughly 2,200 blocks and 158,000 words in about 30
+seconds. Punctuation is not stored per word: it stays in the block text and is
 reproduced from character offsets, so a paragraph renders back byte-for-byte.
 
 Useful environment variables:
@@ -109,6 +109,28 @@ Useful environment variables:
 - `INGEST_MAX_PAGES` caps pages, which is handy while iterating
 - `PYTHON_BIN` overrides the interpreter (defaults to `.venv/bin/python`, then `python3`)
 - `SPACY_MODEL` defaults to `es_core_news_md`
+
+### How words are stored
+
+A block keeps its words inline, in a `words` JSONB array, rather than as a row each. One
+novel is about 158,000 words: as rows that came to 33 MB a book, and as one array per
+block it is 6 MB, with page reads no slower because words are only ever fetched a block
+at a time.
+
+Each entry is `{"p": position, "s": start, "e": end, "w": surface, "n": sentence,
+"l": lemma_id, "x": pos, "m": morphology}`, with absent values left out. Offsets are
+relative to `blocks.text`, which is what lets the renderer walk them in order and emit
+the untouched gaps in between.
+
+`Token` is a value object built from those entries, identified by the pair
+`(block, position)` — `"<block_id>-<position>"` in a URL, `token_<block_id>_<position>`
+as a DOM id. That is what lets a bookmark or a saved word point back at one exact word.
+
+Counting occurrences across a library cannot be done against blobs, so `book_lemmas`
+holds one row per book per lemma with its count, a `{surface => count}` map, and one
+sample occurrence for the quiz to quote. It is written at ingest time, costs about 3 MB
+a book, and is proportional to a reader's vocabulary rather than to the length of their
+books.
 
 ## Testing
 
