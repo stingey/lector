@@ -1,0 +1,97 @@
+<% content_for :title, "Words" %>
+
+<div class="wrap">
+  <%= render "shared/flash" %>
+
+  <div class="page-head">
+    <h1>Word bank</h1>
+    <span class="page-head__spacer"></span>
+    <% if @stats[:due].positive? %>
+      <%= link_to "Quiz #{@stats[:due]} due", quiz_path, class: "btn btn--primary" %>
+    <% end %>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat__value mono"><%= @stats[:total] %></div>
+      <div class="stat__label">Saved</div>
+    </div>
+    <div class="stat">
+      <div class="stat__value mono"><%= @stats[:learning] %></div>
+      <div class="stat__label">Learning</div>
+    </div>
+    <div class="stat">
+      <div class="stat__value mono"><%= @stats[:due] %></div>
+      <div class="stat__label">Due now</div>
+    </div>
+    <div class="stat">
+      <div class="stat__value mono"><%= @stats[:this_week] %></div>
+      <div class="stat__label">Added this week</div>
+    </div>
+  </div>
+
+  <%= form_with url: words_path, method: :get, class: "filters" do |form| %>
+    <div class="field">
+      <%= form.label :query, "Search", class: "field__label" %>
+      <%= form.text_field :query, value: @filters[:query], placeholder: "Spanish or English" %>
+    </div>
+
+    <div class="field">
+      <%= form.label :status, "State", class: "field__label" %>
+      <%= form.select :status,
+                      options_for_select(VocabEntry::STATUSES.map { |s| [ s.capitalize, s ] }, @filters[:status]),
+                      include_blank: "Any" %>
+    </div>
+
+    <div class="field">
+      <%= form.label :pos, "Type", class: "field__label" %>
+      <%= form.select :pos,
+                      options_for_select(part_of_speech_options, @filters[:pos]),
+                      include_blank: "Any" %>
+    </div>
+
+    <div class="field">
+      <%= form.label :book_id, "Book", class: "field__label" %>
+      <%= form.select :book_id,
+                      options_from_collection_for_select(@books, :id, :title, @filters[:book_id]),
+                      include_blank: "Any" %>
+    </div>
+
+    <div class="field">
+      <%= form.label :sort, "Sort", class: "field__label" %>
+      <%= form.select :sort, options_for_select(sort_options, @filters[:sort]) %>
+    </div>
+
+    <span class="filters__spacer"></span>
+    <%= form.submit "Apply", class: "btn" %>
+    <%= link_to "Clear", words_path, class: "btn btn--quiet" %>
+  <% end %>
+
+  <% if @entries.any? %>
+    <%# Scoped to whatever filter is applied, so you can drill a single book. %>
+    <div class="row small muted" style="margin-bottom: 0.75rem;">
+      <span><%= pluralize(@entries.size, "word") %></span>
+      <span class="page-head__spacer"></span>
+      <%= link_to "Quiz these", quiz_path(@scoped_params), class: "btn btn--quiet small" %>
+    </div>
+
+    <div class="words">
+      <% @entries.each do |entry| %>
+        <%= render "words/row", entry: entry,
+                                occurrences: @occurrences[entry.lemma_id],
+                                forms: @forms[entry.lemma_id] %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="empty">
+      <% if @filters.values.any?(&:present?) && @stats[:total].positive? %>
+        <p>No words match that filter.</p>
+        <%= link_to "Clear filters", words_path, class: "btn" %>
+      <% else %>
+        <p>Your word bank is empty.</p>
+        <p class="small">While reading, tap any word and press <strong>Add to word bank</strong>.</p>
+        <%= link_to "Go to library", root_path, class: "btn" %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

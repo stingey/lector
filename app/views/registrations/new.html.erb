@@ -1,0 +1,36 @@
+<% content_for :title, "Create an account" %>
+
+<%= render layout: "shared/auth",
+           locals: {
+             title: "Create an account",
+             subtitle: "Upload a PDF and every word in it becomes tappable.",
+             footer: capture { concat "Already have an account? "; concat link_to("Sign in", new_session_path) }
+           } do %>
+  <%= form_with model: @user, url: registration_path, class: "stack" do |form| %>
+    <% if @user.errors.any? %>
+      <div class="flash flash--alert">
+        <%= @user.errors.full_messages.to_sentence %>
+      </div>
+    <% end %>
+
+    <div class="field">
+      <%= form.label :email_address, "Email", class: "field__label" %>
+      <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username" %>
+    </div>
+
+    <div class="field">
+      <%= form.label :password, "Password", class: "field__label" %>
+      <%= form.password_field :password, required: true, autocomplete: "new-password",
+                              minlength: 8, maxlength: User::MAX_PASSWORD_LENGTH %>
+      <p class="field__hint">At least 8 characters.</p>
+    </div>
+
+    <div class="field">
+      <%= form.label :password_confirmation, "Repeat password", class: "field__label" %>
+      <%= form.password_field :password_confirmation, required: true, autocomplete: "new-password",
+                              maxlength: User::MAX_PASSWORD_LENGTH %>
+    </div>
+
+    <%= form.submit "Create account", class: "btn btn--primary btn--block" %>
+  <% end %>
+<% end %>

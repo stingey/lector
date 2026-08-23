@@ -1,0 +1,20 @@
+<% content_for :title, "Set a new password" %>
+
+<%= render layout: "shared/auth", locals: { title: "Set a new password" } do %>
+  <%= form_with url: password_path(params[:token]), method: :put, class: "stack" do |form| %>
+    <div class="field">
+      <%= form.label :password, "New password", class: "field__label" %>
+      <%= form.password_field :password, required: true, autofocus: true, autocomplete: "new-password",
+                              minlength: 8, maxlength: User::MAX_PASSWORD_LENGTH %>
+      <p class="field__hint">At least 8 characters.</p>
+    </div>
+
+    <div class="field">
+      <%= form.label :password_confirmation, "Repeat password", class: "field__label" %>
+      <%= form.password_field :password_confirmation, required: true, autocomplete: "new-password",
+                              maxlength: User::MAX_PASSWORD_LENGTH %>
+    </div>
+
+    <%= form.submit "Save password", class: "btn btn--primary btn--block" %>
+  <% end %>
+<% end %>

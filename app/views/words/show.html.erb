@@ -1,0 +1,57 @@
+<% content_for :title, @entry.lemma.text %>
+
+<div class="wrap wrap--narrow">
+  <div class="page-head">
+    <div>
+      <h1><%= @entry.lemma.text %></h1>
+      <div class="small muted"><%= @entry.lemma.part_of_speech %></div>
+    </div>
+    <span class="page-head__spacer"></span>
+    <%= link_to "Back to words", words_path, class: "btn btn--quiet" %>
+  </div>
+
+  <%= form_with model: @entry, url: word_path(@entry), method: :patch, class: "stack" do |form| %>
+    <div class="field">
+      <%= form.label :gloss, "Meaning", class: "field__label" %>
+      <%= form.text_field :gloss, placeholder: "What this word means to you" %>
+      <p class="small muted" style="margin-top: 0.3rem;">
+        Suggested by the translator when you saved it. Overwrite it with whatever helps you remember.
+      </p>
+    </div>
+
+    <div class="field">
+      <%= form.label :note, "Note (optional)", class: "field__label" %>
+      <%= form.text_area :note, rows: 3 %>
+    </div>
+
+    <div class="field">
+      <%= form.label :status, "State", class: "field__label" %>
+      <%= form.select :status, VocabEntry::STATUSES.map { |s| [ s.capitalize, s ] } %>
+    </div>
+
+    <div class="row">
+      <%= form.submit "Save", class: "btn btn--primary" %>
+      <% if (target = source_reader_path(@entry)) %>
+        <%= link_to "Find it in the book", target, class: "btn btn--quiet" %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="page-head" style="margin-top: 2.5rem;">
+    <h2>Where you have met it</h2>
+  </div>
+
+  <p class="muted">
+    <%= pluralize(@occurrences, "occurrence") %> across your books.
+  </p>
+
+  <% if @forms.present? %>
+    <div class="forms">
+      <% @forms.each do |surface, count| %>
+        <span class="form-chip">
+          <%= surface %><% if count > 1 %> <span class="form-chip__count"><%= count %></span><% end %>
+        </span>
+      <% end %>
+    </div>
+  <% end %>
+</div>

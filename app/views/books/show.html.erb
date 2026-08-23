@@ -1,0 +1,32 @@
+<% content_for :title, @book.title %>
+
+<% unless @book.failed? %>
+  <%# Processing runs in a background job, so the page checks back on its own. %>
+  <% content_for :head do %>
+    <meta http-equiv="refresh" content="4">
+  <% end %>
+<% end %>
+
+<div class="wrap wrap--narrow">
+  <div class="page-head">
+    <h1><%= @book.title %></h1>
+  </div>
+
+  <% if @book.failed? %>
+    <div class="flash flash--alert">
+      <strong>Could not process this PDF.</strong>
+      <div class="small" style="margin-top: 0.4rem;"><%= @book.ingest_error %></div>
+    </div>
+    <p class="small muted">
+      The most common cause is a scanned book with no text layer, which needs OCR.
+    </p>
+    <%= link_to "Back to library", root_path, class: "btn" %>
+  <% else %>
+    <div class="empty">
+      <p class="pulse">Reading the book&hellip;</p>
+      <p class="small">
+        Extracting the text, then finding the lemma and grammar for every word.
+      </p>
+    </div>
+  <% end %>
+</div>

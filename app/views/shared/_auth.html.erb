@@ -1,0 +1,19 @@
+<%# Shared shell for the signed-out pages: sign in, sign up, and password reset. %>
+<main class="auth">
+  <div class="auth__card">
+    <div class="auth__brand">Lector</div>
+    <h1 class="auth__title"><%= title %></h1>
+
+    <% if local_assigns[:subtitle].present? %>
+      <p class="auth__subtitle"><%= subtitle %></p>
+    <% end %>
+
+    <%= render "shared/flash" %>
+
+    <%= yield %>
+  </div>
+
+  <% if local_assigns[:footer].present? %>
+    <p class="auth__footer"><%= footer %></p>
+  <% end %>
+</main>

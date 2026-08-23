@@ -1,0 +1,7 @@
+<%= turbo_frame_tag "quiz_card" do %>
+  <div class="empty">
+    <p>Session complete.</p>
+    <p class="small">Every word due right now has been reviewed.</p>
+    <%= link_to "Back to words", words_path, class: "btn", data: { turbo_frame: "_top" } %>
+  </div>
+<% end %>

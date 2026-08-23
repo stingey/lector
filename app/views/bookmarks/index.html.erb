@@ -1,0 +1,47 @@
+<% content_for :title, "Bookmarks in #{@book.title}" %>
+
+<div class="wrap">
+  <%= render "shared/flash" %>
+
+  <div class="page-head">
+    <div>
+      <h1>Bookmarks</h1>
+      <div class="page-head__sub"><%= @book.title %></div>
+    </div>
+    <span class="page-head__spacer"></span>
+    <%= link_to "Back to reading", read_book_path(@book), class: "btn btn--quiet" %>
+  </div>
+
+  <% if @bookmarks.any? %>
+    <%# Listed in reading order rather than by when they were placed, so the list
+        doubles as a map of the book. %>
+    <div class="bookmarks">
+      <% @bookmarks.each do |bookmark| %>
+        <div class="bookmark-row">
+          <div class="bookmark-row__main">
+            <div class="bookmark-row__context"><%= highlight_target(bookmark.token) %></div>
+            <div class="bookmark-row__meta">
+              Page <%= bookmark.page %>
+              <% if bookmark.token.block.page_number %>
+                &middot; book page <%= bookmark.token.block.page_number %>
+              <% end %>
+              &middot; marked <%= time_ago_in_words(bookmark.created_at) %> ago
+            </div>
+          </div>
+
+          <div class="bookmark-row__actions">
+            <%= link_to "Go there", reader_path_for(bookmark), class: "btn btn--quiet small" %>
+            <%= button_to "Remove", bookmark_path(bookmark), method: :delete,
+                          class: "btn btn--quiet small btn--danger" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="empty">
+      <p>No bookmarks in this book yet.</p>
+      <p class="small">Tap any word while reading and choose <strong>Bookmark this spot</strong> to mark where you are.</p>
+      <%= link_to "Back to reading", read_book_path(@book), class: "btn btn--primary" %>
+    </div>
+  <% end %>
+</div>

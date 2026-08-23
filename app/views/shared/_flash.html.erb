@@ -1,0 +1,3 @@
+<% flash.each do |type, message| %>
+  <div class="flash <%= "flash--alert" if type.to_s.in?(%w[alert error]) %>"><%= message %></div>
+<% end %>

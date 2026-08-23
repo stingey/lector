@@ -1,0 +1,55 @@
+<% content_for :title, @book.title %>
+
+<div data-controller="reader">
+  <article class="reader"
+           data-action="click->reader#select mouseover->reader#hover mouseout->reader#unhover">
+    <% @blocks.each do |block| %>
+      <%= render "books/block", block: block,
+                                tokens: @tokens_by_block.fetch(block.id, []),
+                                statuses_by_lemma: @statuses_by_lemma,
+                                bookmarked_token_ids: @bookmarked_token_ids %>
+    <% end %>
+  </article>
+
+  <%# The titles spell out the arrow keys, which are the way most of this bar is
+      actually used once you know about them. %>
+  <div class="reader-bar">
+    <% if @page > 1 %>
+      <%= link_to "&larr; Back".html_safe, read_book_path(@book, page: @page - 1),
+                  class: "btn btn--quiet small", title: "Previous page (left arrow)",
+                  data: { page: "prev" } %>
+    <% end %>
+
+    <span class="reader-bar__spacer"></span>
+
+    <span class="mono small">
+      <%= @page %> / <%= @total_pages %>
+      <% if @blocks.first&.page_number %>
+        &middot; book page <%= @blocks.first.page_number %>
+      <% end %>
+    </span>
+
+    <button type="button" class="btn btn--quiet small" data-action="reader#smaller" title="Smaller text">A&minus;</button>
+    <button type="button" class="btn btn--quiet small" data-action="reader#larger" title="Larger text">A+</button>
+
+    <%= link_to book_bookmarks_path(@book), class: "btn btn--quiet small",
+                title: "Your bookmarks in this book" do %>
+      Bookmarks
+      <%= tag.span (@bookmark_count.positive? ? @bookmark_count : ""),
+                   class: "mono", data: { reader_target: "bookmarkCount" } %>
+    <% end %>
+
+    <span class="reader-bar__spacer"></span>
+
+    <% if @page < @total_pages %>
+      <%= link_to "Next &rarr;".html_safe, read_book_path(@book, page: @page + 1),
+                  class: "btn btn--quiet small", title: "Next page (right arrow)",
+                  data: { page: "next" } %>
+    <% end %>
+  </div>
+
+  <%# The word card loads into here on click and is empty until then. %>
+  <%= turbo_frame_tag "word_card", data: { reader_target: "card" } %>
+
+  <div class="tip" data-reader-target="tip" role="tooltip"></div>
+</div>

@@ -1,0 +1,21 @@
+<%# The plus button. Adding keys off the lemma, not the surface form, which is why
+    one click highlights every conjugation in the book.
+
+    The data attributes let the reader repaint highlights for this lemma the moment
+    the frame comes back, without reloading the page. %>
+<%= turbo_frame_tag dom_id(token, :bank) do %>
+  <span class="row"
+        data-bank-lemma="<%= token.lemma_id %>"
+        data-bank-status="<%= entry&.status %>">
+    <% if entry.present? %>
+      <span class="badge"><%= status_label(entry) %></span>
+      <%= button_to "Remove", word_path(entry, token_id: token.id),
+                    method: :delete,
+                    class: "btn btn--quiet small btn--danger" %>
+    <% else %>
+      <%= button_to "+ Add to word bank", add_words_path,
+                    params: { token_id: token.id },
+                    class: "btn btn--primary" %>
+    <% end %>
+  </span>
+<% end %>

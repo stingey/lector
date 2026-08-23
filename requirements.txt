@@ -1,0 +1,7 @@
+# Ingest-time only. Nothing here runs while reading: the reader serves lemmas and
+# grammar that were computed once at upload and stored in Postgres.
+pymupdf==1.28.2
+spacy==3.8.15
+
+# Spanish model with word vectors, lemmas, and morphological features (~40 MB).
+es_core_news_md @ https://github.com/explosion/spacy-models/releases/download/es_core_news_md-3.8.0/es_core_news_md-3.8.0-py3-none-any.whl

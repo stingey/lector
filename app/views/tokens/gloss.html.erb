@@ -1,0 +1,31 @@
+<%= turbo_frame_tag "word_gloss" do %>
+  <% if @gloss.present? %>
+    <div class="word-card__meaning"><%= @gloss.meaning %></div>
+
+    <% if @gloss.dictionary.present? && @gloss.dictionary != @gloss.meaning %>
+      <div class="small muted" style="margin-top: 0.3rem;">
+        Generally: <%= @gloss.dictionary %>
+      </div>
+    <% end %>
+
+    <% if @gloss.literal.present? %>
+      <div class="small muted" style="margin-top: 0.2rem;">
+        Literally: <%= @gloss.literal %>
+      </div>
+    <% end %>
+
+    <% if @gloss.note.present? %>
+      <div class="word-card__note"><%= @gloss.note %></div>
+    <% end %>
+  <% elsif @failed %>
+    <div class="small muted">
+      Translation unavailable right now. The grammar above still applies.
+    </div>
+  <% else %>
+    <%# No API key configured: the app stays fully usable on precomputed grammar alone. %>
+    <div class="small muted">
+      Set <code>TRANSLATOR_API_KEY</code> to enable contextual translation.
+      Grammar and your word bank work without it.
+    </div>
+  <% end %>
+<% end %>

@@ -1,0 +1,40 @@
+<%# Rendered into the reader's card frame. Everything here is already in the
+    database, so it paints immediately.
+
+    The reader controller anchors this to the clicked word. There is no backdrop: the
+    page stays live underneath, so the next word you want is one click away instead of
+    two. %>
+<%= turbo_frame_tag "word_card" do %>
+  <div class="word-card">
+    <button type="button" class="word-card__close" data-action="click->reader#closeCard" aria-label="Close">&times;</button>
+
+    <div class="word-card__head">
+      <span class="word-card__surface"><%= @token.surface %></span>
+      <% if @token.inflected? %>
+        <span class="word-card__lemma">from <strong><%= @token.lemma_text %></strong></span>
+      <% end %>
+    </div>
+
+    <% if @token.grammar_summary.present? %>
+      <div class="word-card__grammar"><%= @token.grammar_summary %></div>
+    <% end %>
+
+    <%# The translation arrives in its own frame so the card never blocks on it. %>
+    <div class="word-card__section">
+      <%= turbo_frame_tag "word_gloss", src: gloss_token_path(@token), loading: :eager do %>
+        <div class="pulse small">Reading the sentence&hellip;</div>
+      <% end %>
+    </div>
+
+    <div class="word-card__section">
+      <div class="word-card__label">In context</div>
+      <div class="word-card__sentence"><%= highlight_target(@token) %></div>
+    </div>
+
+    <div class="word-card__actions">
+      <%= render "tokens/bank_button", token: @token, entry: @entry %>
+      <span class="page-head__spacer"></span>
+      <%= render "bookmarks/button", token: @token, bookmark: @bookmark, total: @bookmark_count %>
+    </div>
+  </div>
+<% end %>

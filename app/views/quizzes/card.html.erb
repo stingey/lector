@@ -1,0 +1,51 @@
+<%= turbo_frame_tag "quiz_card" do %>
+  <div class="quiz" data-controller="quiz">
+    <div class="quiz__progress mono"><%= @remaining %> left</div>
+
+    <%# Recognition, not recall of spelling: you see the word in real context and
+        judge whether you know it, which is the skill reading actually needs. %>
+    <div class="quiz__prompt">
+      <% if @example %>
+        <%= highlight_target(@example[:token]) %>
+      <% else %>
+        <%= @entry.lemma.text %>
+      <% end %>
+    </div>
+
+    <div data-quiz-target="answer" hidden>
+      <div class="word-card__section">
+        <div class="quiz__answer"><%= @entry.gloss.presence || "—" %></div>
+        <div class="small muted" style="margin-top: 0.35rem;">
+          <%= @entry.lemma.text %> &middot; <%= @entry.lemma.part_of_speech %>
+          <% if @example && @example[:token].grammar_summary.present? %>
+            <br><%= @example[:token].surface %>: <%= @example[:token].grammar_summary %>
+          <% end %>
+        </div>
+        <% if @entry.gloss.blank? %>
+          <p class="small faint" style="margin-top: 0.5rem;">
+            No meaning saved. <%= link_to "Add one", word_path(@entry), data: { turbo_frame: "_top" } %>.
+          </p>
+        <% end %>
+        <% if @entry.note.present? %>
+          <div class="word-card__note"><%= @entry.note %></div>
+        <% end %>
+      </div>
+
+      <div class="quiz__grades">
+        <% Srs::RATINGS.each_key do |rating| %>
+          <%= button_to answer_quiz_path(@filter.query_parameters.merge(
+                          entry_id: @entry.id, rating: rating, sentence_id: @example&.dig(:sentence)&.id
+                        )),
+                        class: "btn" do %>
+            <%= rating.capitalize %>
+            <small><%= quiz_interval_label(@previews[rating]) %></small>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="row" style="justify-content: center; margin-top: 1.5rem;" data-quiz-target="reveal">
+      <button type="button" class="btn btn--primary" data-action="quiz#reveal">Show meaning</button>
+    </div>
+  </div>
+<% end %>

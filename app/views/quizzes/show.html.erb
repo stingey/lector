@@ -1,0 +1,33 @@
+<% content_for :title, "Quiz" %>
+
+<div class="wrap wrap--narrow">
+  <%= render "shared/flash" %>
+
+  <div class="page-head">
+    <h1>Quiz</h1>
+    <span class="page-head__spacer"></span>
+    <% if @filter.scoped? %>
+      <span class="badge">filtered</span>
+    <% end %>
+  </div>
+
+  <% if @due_count.zero? && @new_count.zero? %>
+    <div class="empty">
+      <p>Nothing to review right now.</p>
+      <p class="small">
+        Spaced repetition only brings a word back when you are close to forgetting it,
+        so an empty queue means you are up to date.
+      </p>
+      <%= link_to "Back to words", words_path, class: "btn" %>
+    </div>
+  <% else %>
+    <p class="muted">
+      <%= pluralize(@due_count, "word") %> due<% if @new_count.positive? %>,
+      plus up to <%= [ @new_count, QuizzesController::NEW_PER_SESSION ].min %> new<% end %>.
+    </p>
+
+    <%= turbo_frame_tag "quiz_card", src: card_quiz_path(@filter.query_parameters), loading: :eager do %>
+      <div class="empty pulse">Loading&hellip;</div>
+    <% end %>
+  <% end %>
+</div>

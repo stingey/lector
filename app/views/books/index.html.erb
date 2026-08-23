@@ -1,0 +1,71 @@
+<% content_for :title, "Library" %>
+
+<div class="wrap">
+  <%= render "shared/flash" %>
+
+  <div class="page-head">
+    <h1>Library</h1>
+    <span class="page-head__spacer"></span>
+    <%= link_to "Add a book", new_book_path, class: "btn btn--primary" %>
+  </div>
+
+  <% if @books.any? %>
+    <div class="library">
+      <% @books.each do |book| %>
+        <% resume = @resume_points[book.id] %>
+        <div class="book-row">
+          <div class="book-row__main">
+            <%# The title resumes rather than starting over, which is what opening a
+                book you are part way through should do. %>
+            <div class="book-row__title">
+              <% if book.ready? %>
+                <%= link_to book.title, read_book_path(book, **(resume&.path_options || {})) %>
+              <% else %>
+                <%= link_to book.title, book_path(book) %>
+              <% end %>
+            </div>
+            <div class="book-row__meta">
+              <% if book.ready? %>
+                <%= number_with_delimiter(book.word_count) %> words
+                <%# Either how big the book is or how far into it you are, never both. %>
+                <% if resume&.book_page %>
+                  &middot; page <%= resume.book_page %><% if book.page_count %> of <%= book.page_count %><% end %>
+                <% elsif book.page_count %>
+                  &middot; <%= book.page_count %> pages
+                <% end %>
+                <% if book.author.present? %>&middot; <%= book.author %><% end %>
+              <% elsif book.failed? %>
+                Could not be processed
+              <% else %>
+                <%= book.status.capitalize %>&hellip;
+              <% end %>
+            </div>
+          </div>
+
+          <% unless book.ready? %>
+            <span class="badge"><%= book.status %></span>
+          <% end %>
+
+          <%# Says where it goes, so a bookmark is not something you have to remember
+              having placed. Absent until there is somewhere to continue from. %>
+          <%# Bordered rather than quiet, so the row's useful action outranks the
+              destructive one instead of matching it. %>
+          <% if resume %>
+            <%= link_to resume.label, read_book_path(book, **resume.path_options),
+                        class: "btn small" %>
+          <% end %>
+
+          <%= button_to "Remove", book_path(book), method: :delete,
+                        class: "btn btn--quiet small btn--danger",
+                        form: { data: { turbo_confirm: "Remove #{book.title} and everything from it?" } } %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="empty">
+      <p>No books yet.</p>
+      <p class="small">Upload a Spanish PDF and every word in it becomes tappable.</p>
+      <%= link_to "Add your first book", new_book_path, class: "btn btn--primary" %>
+    </div>
+  <% end %>
+</div>

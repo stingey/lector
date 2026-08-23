@@ -1,0 +1,18 @@
+<% content_for :title, "Reset your password" %>
+
+<%= render layout: "shared/auth",
+           locals: {
+             title: "Reset your password",
+             subtitle: "We will email you a link to set a new one.",
+             footer: capture { concat "Remembered it? "; concat link_to("Sign in", new_session_path) }
+           } do %>
+  <%= form_with url: passwords_path, class: "stack" do |form| %>
+    <div class="field">
+      <%= form.label :email_address, "Email", class: "field__label" %>
+      <%= form.email_field :email_address, required: true, autofocus: true,
+                           autocomplete: "username", value: params[:email_address] %>
+    </div>
+
+    <%= form.submit "Email reset instructions", class: "btn btn--primary btn--block" %>
+  <% end %>
+<% end %>

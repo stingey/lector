@@ -1,0 +1,779 @@
+:root {
+  --paper: #ffffff;
+  --surface: #f9fafb;
+  --surface-sunken: #f3f4f6;
+  --line: #e5e7eb;
+  --line-strong: #d1d5db;
+  /* One neutral scale, each tone a step darker than the shade above it. Prose reads in
+     ink-soft, so that is the one that decides how heavy the page feels. */
+  --ink: #18181b;
+  --ink-soft: #27272a;
+  --ink-muted: #52525b;
+  --ink-faint: #71717a;
+  --learning: #eef2f7;
+  --learning-line: #94a3b8;
+  --known: #f4f5f7;
+  --known-line: #d4d4d8;
+  /* The one warm colour in the app. A bookmark is wayfinding, not content, so it has
+     to be findable at a glance in a page of grey text. */
+  --bookmark: #b45309;
+  --bookmark-soft: #fdf0d5;
+  --radius: 6px;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --serif: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* The hidden attribute must beat layout classes like .row that set a display value. */
+[hidden] {
+  display: none !important;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+h1 { font-size: 1.4rem; }
+h2 { font-size: 1.1rem; }
+
+/* ---------- shell ---------- */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: saturate(180%) blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+
+.topbar__brand {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.topbar__nav {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.875rem;
+  color: var(--ink-muted);
+}
+
+.topbar__nav a[aria-current="page"] {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.topbar__spacer { flex: 1; }
+
+.wrap {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 5rem;
+}
+
+.wrap--narrow { max-width: 680px; }
+
+/* ---------- generic bits ---------- */
+
+.muted { color: var(--ink-muted); }
+.faint { color: var(--ink-faint); }
+.small { font-size: 0.8125rem; }
+.mono { font-variant-numeric: tabular-nums; }
+
+.stack > * + * { margin-top: 0.75rem; }
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.page-head {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.page-head__spacer { flex: 1; }
+.page-head__sub { margin-top: 0.15rem; font-size: 0.8125rem; color: var(--ink-muted); }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.85rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.btn:hover {
+  background: var(--surface);
+  text-decoration: none;
+}
+
+.btn--primary {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+
+.btn--primary:hover { background: #000; }
+
+.btn--quiet {
+  border-color: transparent;
+  color: var(--ink-muted);
+  padding-inline: 0.5rem;
+}
+
+.btn--quiet:hover { background: var(--surface-sunken); }
+
+.btn--danger:hover {
+  border-color: #ef4444;
+  color: #b91c1c;
+  background: #fef2f2;
+}
+
+.btn:disabled { opacity: 0.45; cursor: default; }
+
+.btn--block { width: 100%; justify-content: center; padding-block: 0.5rem; }
+
+.field { display: block; margin-bottom: 1rem; }
+
+.field__label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--ink-soft);
+  margin-bottom: 0.3rem;
+}
+
+.field__hint {
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+  margin-top: 0.3rem;
+}
+
+.field input[type="text"],
+.field input[type="email"],
+.field input[type="password"],
+.field input[type="file"],
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--paper);
+  font: inherit;
+  color: var(--ink);
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  outline: 2px solid var(--ink);
+  outline-offset: -1px;
+}
+
+.flash {
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--ink-muted);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 0.875rem;
+  margin-bottom: 1.25rem;
+}
+
+.flash--alert {
+  border-left-color: #dc2626;
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.empty {
+  padding: 3.5rem 2rem;
+  text-align: center;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius);
+  color: var(--ink-muted);
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.1rem 0.45rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-muted);
+}
+
+/* ---------- library ---------- */
+
+.library { display: grid; gap: 0.5rem; }
+
+.book-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+}
+
+.book-row:hover { background: var(--surface); }
+.book-row__main { flex: 1; min-width: 0; }
+.book-row__title { font-weight: 500; }
+
+.book-row__meta {
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+  margin-top: 0.15rem;
+}
+
+/* ---------- reader ---------- */
+
+/* The measure is in em, not rem, so it is relative to the reading size rather than to
+   the root. That keeps the line length at a roughly constant number of characters as
+   you zoom: enlarging the text behaves like a large-print edition instead of squeezing
+   the same column into more and more lines. */
+.reader {
+  /* In em, not rem, so the column grows with the reading size and the line length
+     stays put when you zoom. 46em is about 98 characters a line, well past the classic
+     45-75 comfort range, which the 1.75 line-height earns back: long lines go wrong
+     when the eye cannot find the start of the next one, and generous leading is the fix.
+     Kept under 48em so the column still fits a 1400px window at the largest reading
+     size, rather than being capped by it and losing the steady line length. */
+  --measure: 46em;
+  max-width: min(var(--measure), 100%);
+  margin: 0 auto;
+  padding: 2rem 1.5rem 6rem;
+  font-family: var(--serif);
+  font-size: var(--reading-size, 1.125rem);
+  line-height: 1.75;
+  color: var(--ink-soft);
+}
+
+.reader p { margin: 0 0 1.15em; }
+
+/* Deliberately no text-transform: the reader has to see a word's real casing to
+   look it up, so headings are distinguished by weight and spacing instead. */
+.reader h2.reader__heading {
+  font-family: var(--sans);
+  font-size: 0.95em;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--ink);
+  margin: 2.5em 0 1.25em;
+}
+
+.reader__figure { margin: 1.75em 0; text-align: center; }
+
+/* No border or radius: the book's illustrations are printed straight onto the page,
+   and framing them adds chrome the original does not have. */
+.reader__figure img {
+  max-width: 100%;
+  height: auto;
+}
+
+.w {
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background 0.1s ease;
+}
+
+.w:hover { background: var(--surface-sunken); }
+
+/* Saved words stay legible: a light wash plus a thin rule, never a block of color. */
+.w--learning {
+  background: var(--learning);
+  box-shadow: inset 0 -1px 0 var(--learning-line);
+}
+
+.w--known {
+  background: var(--known);
+  box-shadow: inset 0 -1px 0 var(--known-line);
+}
+
+.w--active {
+  outline: 2px solid var(--ink);
+  outline-offset: 1px;
+  background: var(--surface-sunken);
+}
+
+/* A ribbon in the leading above the word, drawn rather than inserted as a character
+   so it never affects line breaking or the word's own spacing. The underline ties it
+   to the word: on its own the ribbon reads as a stray mark on the page. */
+.w--bookmarked {
+  position: relative;
+  text-decoration: underline;
+  text-decoration-color: var(--bookmark);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.w--bookmarked::after {
+  content: "";
+  position: absolute;
+  top: -0.62em;
+  right: 0;
+  width: 0.36em;
+  height: 0.7em;
+  background: var(--bookmark);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 66%, 0 100%);
+}
+
+/* Arriving from a bookmark: the browser scrolls to the word, this says which one. */
+.w--found { animation: found-word 2s ease-out; }
+
+@keyframes found-word {
+  0%, 40% { background: var(--bookmark-soft); }
+  100% { background: transparent; }
+}
+
+.reader-bar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem 1.5rem;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: saturate(180%) blur(8px);
+  border-top: 1px solid var(--line);
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+}
+
+.reader-bar__spacer { flex: 1; }
+
+/* ---------- word card ---------- */
+
+/* Positioned in document coordinates by the reader controller, so the card stays with
+   its passage while you scroll instead of floating over the viewport.
+
+   Hidden until the controller has placed it: it arrives in the frame before anything
+   knows where the word is, and painting it at the top of the document first would show
+   a card jumping across the page. */
+.word-card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 40;
+  opacity: 0;
+  transition: opacity 0.08s ease;
+  width: min(30rem, calc(100vw - 2rem));
+  padding: 1.1rem 1.25rem 1.25rem;
+  background: var(--paper);
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(24, 24, 27, 0.14);
+  font-family: var(--sans);
+  font-size: 0.9375rem;
+}
+
+.word-card--placed { opacity: 1; }
+
+/* The caret is what makes the card read as belonging to the word rather than merely
+   landing near it. Its offset is set alongside the position, since only the controller
+   knows where the word sits relative to the card's clamped left edge. */
+.word-card::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: var(--caret-x, 50%);
+  width: 11px;
+  height: 11px;
+  background: var(--paper);
+  border-left: 1px solid var(--line-strong);
+  border-top: 1px solid var(--line-strong);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.word-card--above::before {
+  top: auto;
+  bottom: -6px;
+  transform: translateX(-50%) rotate(225deg);
+}
+
+.word-card__head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+
+.word-card__surface {
+  font-family: var(--serif);
+  font-size: 1.375rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.word-card__lemma {
+  font-size: 0.875rem;
+  color: var(--ink-muted);
+}
+
+.word-card__grammar {
+  margin-top: 0.15rem;
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+}
+
+.word-card__section {
+  margin-top: 0.9rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line);
+}
+
+.word-card__meaning {
+  font-size: 1.0625rem;
+  color: var(--ink);
+}
+
+.word-card__label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+  margin-bottom: 0.15rem;
+}
+
+.word-card__note {
+  margin-top: 0.6rem;
+  padding: 0.5rem 0.7rem;
+  background: var(--surface);
+  border-left: 2px solid var(--line-strong);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  font-size: 0.8125rem;
+  color: var(--ink-soft);
+}
+
+.word-card__sentence {
+  font-family: var(--serif);
+  font-size: 0.9375rem;
+  color: var(--ink-muted);
+}
+
+/* Keep the target word marked in the app's own palette rather than the browser's yellow. */
+.word-card__sentence mark,
+.quiz__prompt mark {
+  background: var(--learning);
+  color: var(--ink);
+  box-shadow: inset 0 -1px 0 var(--learning-line);
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
+.word-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.word-card__close {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.7rem;
+  border: 0;
+  background: none;
+  color: var(--ink-faint);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.2rem 0.35rem;
+  border-radius: var(--radius);
+}
+
+.word-card__close:hover { background: var(--surface-sunken); color: var(--ink); }
+
+/* On a phone there is no room beside a word, so the card becomes a sheet at the bottom
+   of the screen. The controller clears its inline position when this applies. */
+@media (max-width: 640px) {
+  .word-card {
+    position: fixed;
+    top: auto;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    width: auto;
+  }
+
+  .word-card::before { display: none; }
+}
+
+.pulse { color: var(--ink-faint); animation: pulse 1.4s ease-in-out infinite; }
+
+@keyframes pulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
+
+/* Hover tip: pure CSS positioning, filled from data attributes already in the DOM. */
+.tip {
+  position: fixed;
+  z-index: 50;
+  padding: 0.3rem 0.55rem;
+  background: var(--ink);
+  color: #fff;
+  border-radius: var(--radius);
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  line-height: 1.35;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(2px);
+  transition: opacity 0.1s ease, transform 0.1s ease;
+  max-width: 18rem;
+}
+
+.tip--visible { opacity: 1; transform: translateY(0); }
+.tip__lemma { font-weight: 600; }
+.tip__grammar { color: #d4d4d8; }
+
+/* ---------- word bank ---------- */
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.6rem;
+  padding: 0.85rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  margin-bottom: 1.25rem;
+}
+
+.filters .field { margin: 0; }
+.filters .field__label { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.filters select, .filters input[type="text"] { min-width: 9rem; font-size: 0.875rem; padding: 0.35rem 0.5rem; }
+.filters__spacer { flex: 1; }
+
+.stats {
+  display: flex;
+  gap: 2rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  margin-bottom: 1.25rem;
+}
+
+.stat__value { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.02em; }
+.stat__label { font-size: 0.75rem; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+.words { display: grid; gap: 0.4rem; }
+
+.word-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.word-row:hover { background: var(--surface); }
+.word-row__main { flex: 1; min-width: 0; }
+
+.word-row__lemma {
+  font-family: var(--serif);
+  font-size: 1.0625rem;
+  font-weight: 600;
+}
+
+.word-row__gloss { color: var(--ink-soft); }
+.word-row__meta { font-size: 0.8125rem; color: var(--ink-muted); margin-top: 0.2rem; }
+
+.forms { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.4rem; }
+
+.form-chip {
+  padding: 0.05rem 0.4rem;
+  background: var(--surface-sunken);
+  border-radius: 3px;
+  font-family: var(--serif);
+  font-size: 0.8125rem;
+  color: var(--ink-soft);
+}
+
+.form-chip__count { color: var(--ink-faint); font-family: var(--sans); font-size: 0.6875rem; }
+
+.word-row__actions { display: flex; align-items: center; gap: 0.25rem; }
+
+/* ---------- bookmarks ---------- */
+
+.bookmarks { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.bookmark-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  border-left: 3px solid var(--bookmark);
+}
+
+.bookmark-row:hover { background: var(--surface); }
+.bookmark-row__main { flex: 1; min-width: 0; }
+
+.bookmark-row__context {
+  font-family: var(--serif);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+.bookmark-row__context mark {
+  background: var(--bookmark-soft);
+  color: var(--ink);
+  font-weight: 600;
+  border-radius: 2px;
+  padding: 0 0.1em;
+}
+
+.bookmark-row__meta {
+  margin-top: 0.35rem;
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+}
+
+.bookmark-row__actions { display: flex; align-items: center; gap: 0.25rem; }
+
+/* ---------- quiz ---------- */
+
+.quiz { max-width: 34rem; margin: 0 auto; text-align: center; }
+
+.quiz__prompt {
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  line-height: 1.7;
+  color: var(--ink-soft);
+  padding: 2.5rem 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.quiz__prompt .blank {
+  display: inline-block;
+  min-width: 4.5rem;
+  border-bottom: 2px solid var(--ink);
+  color: transparent;
+}
+
+.quiz__answer { font-family: var(--serif); font-size: 1.5rem; font-weight: 600; }
+.quiz__grades { display: flex; gap: 0.5rem; justify-content: center; margin-top: 1.5rem; }
+.quiz__grades .btn { flex: 1; justify-content: center; flex-direction: column; gap: 0.1rem; padding: 0.6rem 0.5rem; }
+.quiz__grades .btn small { color: var(--ink-faint); font-size: 0.6875rem; }
+.quiz__progress { font-size: 0.8125rem; color: var(--ink-muted); margin-bottom: 1.25rem; }
+
+/* ---------- auth ---------- */
+
+/* Vertically centred, but pinned to the top on short screens so the form is never
+   cut off by a phone keyboard. */
+.auth {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2.5rem 1.25rem;
+  background: var(--surface);
+}
+
+.auth__card {
+  width: 100%;
+  max-width: 23rem;
+  padding: 2rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(24, 24, 27, 0.04);
+}
+
+.auth__brand {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-bottom: 1.5rem;
+}
+
+.auth__title {
+  font-size: 1.375rem;
+  margin-bottom: 0.35rem;
+}
+
+.auth__subtitle {
+  color: var(--ink-muted);
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+}
+
+.auth__card .flash { margin-bottom: 1rem; }
+
+.auth__card .stack > .btn { margin-top: 1.25rem; }
+
+.auth__aside {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.8125rem;
+}
+
+.auth__aside a { color: var(--ink-muted); }
+.auth__aside a:hover { color: var(--ink); }
+
+.auth__footer {
+  margin-top: 1.25rem;
+  font-size: 0.875rem;
+  color: var(--ink-muted);
+}
+
+.auth__footer a {
+  font-weight: 500;
+  border-bottom: 1px solid var(--line-strong);
+}

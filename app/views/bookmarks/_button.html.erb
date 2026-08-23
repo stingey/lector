@@ -1,0 +1,22 @@
+<%# The ribbon button on the word card. Unlike the word bank, a bookmark is tied to
+    this exact word in this exact sentence, not to the lemma: it is a place, not a word.
+
+    The data attributes let the reader draw or clear the ribbon on the word underneath,
+    and refresh the count in its bar, as soon as this frame comes back. %>
+<%= turbo_frame_tag dom_id(token, :bookmark) do %>
+  <span class="row"
+        data-bookmark-token="<%= token.id %>"
+        data-bookmark-placed="<%= bookmark.present? %>"
+        data-bookmark-total="<%= total %>">
+    <% if bookmark.present? %>
+      <%= button_to "Remove bookmark", bookmark_path(bookmark), method: :delete,
+                    class: "btn btn--quiet small",
+                    title: "Stop marking this spot" %>
+    <% else %>
+      <%= button_to "Bookmark this spot", bookmarks_path,
+                    params: { token_id: token.id },
+                    class: "btn btn--quiet small",
+                    title: "Mark this word so you can come back to it" %>
+    <% end %>
+  </span>
+<% end %>

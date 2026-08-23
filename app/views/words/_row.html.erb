@@ -1,0 +1,44 @@
+<div class="word-row" id="<%= dom_id(entry) %>">
+  <div class="word-row__main">
+    <div class="row">
+      <span class="word-row__lemma"><%= entry.lemma.text %></span>
+      <span class="badge"><%= entry.lemma.part_of_speech %></span>
+      <span class="badge"><%= status_label(entry) %></span>
+    </div>
+
+    <div class="word-row__gloss">
+      <%= entry.gloss.presence || content_tag(:span, "No meaning saved yet", class: "faint small") %>
+    </div>
+
+    <div class="word-row__meta">
+      <% if occurrences.to_i.positive? %>
+        Appears <%= pluralize(occurrences, "time") %>
+        <% if entry.source_book %>in <%= entry.source_book.title %><% end %>
+      <% end %>
+      &middot; added <%= time_ago_in_words(entry.created_at) %> ago
+      &middot; <%= due_description(entry) %>
+    </div>
+
+    <%# The forms actually encountered while reading, which is what tells you
+        whether you have really met this word or only its dictionary entry. %>
+    <% if forms.present? && forms.size > 1 %>
+      <div class="forms">
+        <% forms.each do |surface, count| %>
+          <span class="form-chip">
+            <%= surface %><% if count > 1 %> <span class="form-chip__count"><%= count %></span><% end %>
+          </span>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="word-row__actions">
+    <% if (target = source_reader_path(entry)) %>
+      <%= link_to "In book", target, class: "btn btn--quiet small", title: "Jump to where you found it" %>
+    <% end %>
+    <%= link_to "Edit", word_path(entry), class: "btn btn--quiet small" %>
+    <%= button_to "Remove", word_path(entry), method: :delete,
+                  class: "btn btn--quiet small btn--danger",
+                  form: { data: { turbo_confirm: "Remove #{entry.lemma.text}?" } } %>
+  </div>
+</div>

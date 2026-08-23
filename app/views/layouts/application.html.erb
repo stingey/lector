@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Lector" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
+    <% if authenticated? %>
+      <header class="topbar">
+        <%= link_to "Lector", root_path, class: "topbar__brand" %>
+        <nav class="topbar__nav">
+          <%= link_to "Library", root_path, "aria-current": ("page" if controller_name == "books") %>
+          <%= link_to "Words", words_path, "aria-current": ("page" if controller_name == "words") %>
+          <%= link_to "Quiz", quiz_path, "aria-current": ("page" if controller_name == "quizzes") %>
+        </nav>
+        <span class="topbar__spacer"></span>
+        <%= button_to "Sign out", session_path, method: :delete, class: "btn btn--quiet small" %>
+      </header>
+    <% end %>
+
+    <%= yield %>
+  </body>
+</html>
