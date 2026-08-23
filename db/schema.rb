@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_23_020000) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_23_030000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -86,14 +86,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_23_020000) do
   create_table "bookmarks", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "book_id", null: false
-    t.bigint "token_id", null: false
     t.integer "block_position", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "block_id", null: false
+    t.integer "word_position", null: false
+    t.index ["block_id"], name: "index_bookmarks_on_block_id"
     t.index ["book_id"], name: "index_bookmarks_on_book_id"
-    t.index ["token_id"], name: "index_bookmarks_on_token_id"
+    t.index ["user_id", "block_id", "word_position"], name: "index_bookmarks_on_user_id_and_block_id_and_word_position", unique: true
     t.index ["user_id", "book_id", "block_position"], name: "index_bookmarks_on_user_id_and_book_id_and_block_position"
-    t.index ["user_id", "token_id"], name: "index_bookmarks_on_user_id_and_token_id", unique: true
     t.index ["user_id"], name: "index_bookmarks_on_user_id"
   end
 
@@ -363,7 +364,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_23_020000) do
     t.bigint "user_id", null: false
     t.bigint "lemma_id", null: false
     t.bigint "source_book_id"
-    t.bigint "source_token_id"
     t.string "status", default: "learning", null: false
     t.text "gloss"
     t.text "note"
@@ -378,9 +378,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_23_020000) do
     t.datetime "updated_at", null: false
     t.integer "learning_steps", default: 0, null: false
     t.float "scheduled_days", default: 0.0, null: false
+    t.bigint "source_block_id"
+    t.integer "source_word_position"
     t.index ["lemma_id"], name: "index_vocab_entries_on_lemma_id"
+    t.index ["source_block_id"], name: "index_vocab_entries_on_source_block_id"
     t.index ["source_book_id"], name: "index_vocab_entries_on_source_book_id"
-    t.index ["source_token_id"], name: "index_vocab_entries_on_source_token_id"
     t.index ["user_id", "due_at"], name: "index_vocab_entries_on_user_id_and_due_at"
     t.index ["user_id", "lemma_id"], name: "index_vocab_entries_on_user_id_and_lemma_id", unique: true
     t.index ["user_id", "status"], name: "index_vocab_entries_on_user_id_and_status"
@@ -394,8 +396,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_23_020000) do
   add_foreign_key "book_images", "books"
   add_foreign_key "book_lemmas", "books"
   add_foreign_key "book_lemmas", "lemmas"
+  add_foreign_key "bookmarks", "blocks", on_delete: :cascade
   add_foreign_key "bookmarks", "books"
-  add_foreign_key "bookmarks", "tokens", on_delete: :cascade
   add_foreign_key "bookmarks", "users"
   add_foreign_key "books", "users"
   add_foreign_key "glosses", "lemmas"
@@ -418,8 +420,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_23_020000) do
   add_foreign_key "tokens", "books"
   add_foreign_key "tokens", "lemmas"
   add_foreign_key "tokens", "sentences"
+  add_foreign_key "vocab_entries", "blocks", column: "source_block_id", on_delete: :nullify
   add_foreign_key "vocab_entries", "books", column: "source_book_id", on_delete: :nullify
   add_foreign_key "vocab_entries", "lemmas"
-  add_foreign_key "vocab_entries", "tokens", column: "source_token_id", on_delete: :nullify
   add_foreign_key "vocab_entries", "users"
 end

@@ -3,7 +3,7 @@
     fully usable rather than becoming dead text. %>
 <% renderer = BlockRenderer.new(block, tokens: tokens,
                                        statuses_by_lemma: statuses_by_lemma,
-                                       bookmarked_token_ids: bookmarked_token_ids) %>
+                                       bookmarked_positions: bookmarked_positions) %>
 <% case block.kind
    when "image" %>
   <% if block.book_image&.file&.attached? %>

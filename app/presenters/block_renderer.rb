@@ -10,13 +10,13 @@ class BlockRenderer
   # Lemma ids the reader has saved, mapped to their study status, so a saved word
   # highlights in every one of its conjugations.
   #
-  # Bookmarked token ids are separate from that: a bookmark marks one occurrence of
-  # one word, because it stands for a place in the book rather than for vocabulary.
-  def initialize(block, tokens:, statuses_by_lemma: {}, bookmarked_token_ids: [])
+  # Bookmarked positions are separate from that: a bookmark marks one occurrence of one
+  # word, because it stands for a place in the book rather than for vocabulary.
+  def initialize(block, tokens:, statuses_by_lemma: {}, bookmarked_positions: [])
     @block = block
     @tokens = tokens
     @statuses_by_lemma = statuses_by_lemma
-    @bookmarked_token_ids = bookmarked_token_ids.to_set
+    @bookmarked_positions = bookmarked_positions.to_set
   end
 
   def to_html
@@ -39,7 +39,7 @@ class BlockRenderer
 
   private
 
-  attr_reader :block, :tokens, :statuses_by_lemma, :bookmarked_token_ids
+  attr_reader :block, :tokens, :statuses_by_lemma, :bookmarked_positions
 
   def text
     @text ||= block.text.to_s
@@ -51,7 +51,7 @@ class BlockRenderer
 
     classes = [ "w" ]
     classes << "w--#{status}" if status
-    classes << "w--bookmarked" if bookmarked_token_ids.include?(token.id)
+    classes << "w--bookmarked" if bookmarked_positions.include?(token.position)
 
     attributes = {
       # Every word is addressable, which is what makes a bookmark a link you can

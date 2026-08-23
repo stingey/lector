@@ -5,7 +5,8 @@ class TokensController < ApplicationController
   # without waiting on anything. Its nested frame then fetches the translation.
   def show
     @entry = current_user.vocab_entries.find_by(lemma_id: @token.lemma_id)
-    @bookmark = current_user.bookmarks.find_by(token_id: @token.id)
+    @bookmark = current_user.bookmarks.find_by(block_id: @token.block_id,
+                                               word_position: @token.position)
     @bookmark_count = current_user.bookmarks.where(book_id: @token.book_id).count
   end
 

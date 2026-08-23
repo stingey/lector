@@ -22,8 +22,8 @@
             <div class="bookmark-row__context"><%= highlight_target(bookmark.token) %></div>
             <div class="bookmark-row__meta">
               Page <%= bookmark.page %>
-              <% if bookmark.token.block.page_number %>
-                &middot; book page <%= bookmark.token.block.page_number %>
+              <% if bookmark.block.page_number %>
+                &middot; book page <%= bookmark.block.page_number %>
               <% end %>
               &middot; marked <%= time_ago_in_words(bookmark.created_at) %> ago
             </div>

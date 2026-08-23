@@ -3,7 +3,10 @@ class BookmarksController < ApplicationController
   # card updates in place and the reader can repaint the word underneath it.
   def create
     token = find_token(params[:token_id])
-    @bookmark = current_user.bookmarks.find_or_create_by!(token: token)
+    @bookmark = current_user.bookmarks.find_or_create_by!(
+      block_id: token.block_id,
+      word_position: token.position
+    )
 
     render_button(token)
   end
@@ -28,7 +31,7 @@ class BookmarksController < ApplicationController
     @bookmarks = current_user.bookmarks
                              .where(book: @book)
                              .in_reading_order
-                             .includes(token: %i[sentence block])
+                             .includes(block: :sentences)
   end
 
   private
@@ -40,7 +43,8 @@ class BookmarksController < ApplicationController
   def render_button(token)
     render partial: "bookmarks/button",
            locals: { token: token,
-                     bookmark: current_user.bookmarks.find_by(token: token),
+                     bookmark: current_user.bookmarks.find_by(block_id: token.block_id,
+                                                              word_position: token.position),
                      total: current_user.bookmarks.where(book_id: token.book_id).count }
   end
 end

@@ -22,7 +22,8 @@ class WordsController < ApplicationController
     @entry = current_user.vocab_entries.find_or_create_by!(lemma_id: @token.lemma_id) do |entry|
       entry.status = "learning"
       entry.source_book_id = @token.book_id
-      entry.source_token_id = @token.id
+      entry.source_block_id = @token.block_id
+      entry.source_word_position = @token.position
       entry.gloss = suggested_gloss(@token)
     end
 

@@ -7,7 +7,7 @@
       <%= render "books/block", block: block,
                                 tokens: @tokens_by_block.fetch(block.id, []),
                                 statuses_by_lemma: @statuses_by_lemma,
-                                bookmarked_token_ids: @bookmarked_token_ids %>
+                                bookmarked_positions: @bookmarked_positions.fetch(block.id, []) %>
     <% end %>
   </article>
 

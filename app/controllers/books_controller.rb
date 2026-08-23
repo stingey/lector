@@ -52,7 +52,7 @@ class BooksController < ApplicationController
 
     @tokens_by_block = tokens_for(@blocks)
     @statuses_by_lemma = statuses_by_lemma
-    @bookmarked_token_ids = bookmarked_token_ids(offset)
+    @bookmarked_positions = bookmarked_positions(offset)
     @bookmark_count = current_user.bookmarks.where(book: @book).count
 
     save_progress(offset)
@@ -89,14 +89,15 @@ class BooksController < ApplicationController
     current_user.vocab_entries.active.pluck(:lemma_id, :status).to_h
   end
 
-  # Only the marks that fall on this page, matched on the same block range the page
-  # was built from. This is what the denormalised block_position buys: an index hit
-  # instead of an IN list of every token on screen.
-  def bookmarked_token_ids(offset)
+  # Only the marks that fall on this page, matched on the same block range the page was
+  # built from. This is what the denormalised block_position buys: an index hit instead
+  # of a list of every word on screen.
+  def bookmarked_positions(offset)
     current_user.bookmarks
                 .where(book: @book, block_position: offset...(offset + Book::BLOCKS_PER_PAGE))
-                .pluck(:token_id)
-                .to_set
+                .pluck(:block_id, :word_position)
+                .group_by(&:first)
+                .transform_values { |rows| rows.map(&:last).to_set }
   end
 
   def save_progress(offset)

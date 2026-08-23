@@ -4,7 +4,7 @@ class VocabEntry < ApplicationRecord
   belongs_to :user
   belongs_to :lemma
   belongs_to :source_book, class_name: "Book", optional: true
-  belongs_to :source_token, class_name: "Token", optional: true
+  belongs_to :source_block, class_name: "Block", optional: true
 
   has_many :reviews, dependent: :delete_all
 
@@ -17,7 +17,7 @@ class VocabEntry < ApplicationRecord
   scope :due, ->(at = Time.current) { active.where(due_at: ..at) }
   scope :with_lemma, -> { includes(:lemma) }
   # Everything the word bank list needs, so no row triggers its own queries.
-  scope :for_listing, -> { includes(:lemma, :source_book, source_token: :block) }
+  scope :for_listing, -> { includes(:lemma, :source_book, :source_block) }
 
   STATUSES.each do |value|
     define_method(:"#{value}?") { status == value }
@@ -29,6 +29,11 @@ class VocabEntry < ApplicationRecord
 
   def never_reviewed?
     reps.zero?
+  end
+
+  # The word this entry was saved from, if its book has not been re-ingested since.
+  def source_token
+    source_block&.tokens&.find_by(position: source_word_position)
   end
 
   # Distinct surface forms of this word the reader has actually met in their books.

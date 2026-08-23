@@ -15,7 +15,8 @@ class WordBankFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
     entry = @user.vocab_entries.sole
     assert_equal "decir", entry.lemma.text
-    assert_equal @fixture[:token].id, entry.source_token_id
+    assert_equal [ @fixture[:token].block_id, @fixture[:token].position ],
+                 [ entry.source_block_id, entry.source_word_position ]
   end
 
   test "adding the same lemma twice does not duplicate the entry" do

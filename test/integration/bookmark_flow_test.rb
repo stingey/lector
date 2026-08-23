@@ -64,7 +64,8 @@ class BookmarkFlowTest < ActionDispatch::IntegrationTest
     @user.bookmarks.create!(token: late_token)
     @user.bookmarks.create!(token: @token)
 
-    assert_equal [ @token.id, late_token.id ], @user.bookmarks.in_reading_order.map(&:token_id)
+    assert_equal [ @token.block.id, late_token.block.id ],
+                 @user.bookmarks.in_reading_order.map(&:block_id)
   end
 
   test "removing a bookmark from the list returns to the list" do

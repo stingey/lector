@@ -72,7 +72,7 @@ class ResumePoints
   # The most recently placed mark in each book. Ordering ascending and indexing by book
   # leaves the newest one, since index_by keeps the last value it sees.
   def newest_bookmarks
-    user.bookmarks.where(book_id: books.keys).order(:created_at, :id).includes(:token).index_by(&:book_id)
+    user.bookmarks.where(book_id: books.keys).order(:created_at, :id).includes(:block).index_by(&:book_id)
   end
 
   # The book's own printed page number for each position, so the library can say where
