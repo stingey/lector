@@ -144,19 +144,12 @@ class WordCardPlacementTest < ApplicationSystemTestCase
     book = user.books.create!(title: "Prosa", status: "ready", block_count: count, page_count: count)
 
     count.times do |index|
-      text = "Bloque #{index + 1}: ella dijo la verdad sobre el jardín escondido."
-      block = book.blocks.create!(position: index, kind: "paragraph", page_number: index + 1, text: text)
-      sentence = book.sentences.create!(block: block, position: 0, char_start: 0,
-                                        char_end: text.length, text: text)
-
-      cursor = 0
-      %w[ella dijo verdad jardín].each_with_index do |surface, position|
-        offset = text.index(surface, cursor)
-        cursor = offset + surface.length
-
-        book.tokens.create!(block: block, sentence: sentence, position: position,
-                            char_start: offset, char_end: cursor, surface: surface, pos: "NOUN")
-      end
+      build_block_with_words(
+        book,
+        position: index,
+        text: "Bloque #{index + 1}: ella dijo la verdad sobre el jardín escondido.",
+        words: %w[ella dijo verdad jardín].map { |surface| { surface: surface, lemma: surface, pos: "NOUN" } }
+      )
     end
 
     book

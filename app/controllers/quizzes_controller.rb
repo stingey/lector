@@ -56,10 +56,6 @@ class QuizzesController < ApplicationController
     token = entry.source_token || random_token(entry)
     return nil if token.blank?
 
-    token = Token.left_joins(:lemma)
-                 .select("tokens.*", "lemmas.text AS lemma_text")
-                 .find(token.id)
-
     { token: token, sentence: token.sentence }
   end
 

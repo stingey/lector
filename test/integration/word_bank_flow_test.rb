@@ -94,7 +94,7 @@ class WordBankFlowTest < ActionDispatch::IntegrationTest
     entry = @user.vocab_entries.sole
     assert_equal "decir", entry.lemma.text
     assert_nil entry.reload.source_book_id, "provenance should be cleared, not block the delete"
-    assert_equal 0, Token.where(book_id: @fixture[:book].id).count
+    assert_equal 0, Block.where(book_id: @fixture[:book].id).count
   end
 
   test "removing a book with a graded review does not orphan the review" do

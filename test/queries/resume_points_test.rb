@@ -98,22 +98,18 @@ class ResumePointsTest < ActiveSupport::TestCase
 
   def token_on(page:, offset:)
     position = (page - 1) * Book::BLOCKS_PER_PAGE + offset
-    @book.tokens.joins(:block).find_by!(blocks: { position: position })
+    @book.blocks.find_by!(position: position).token_at(0)
   end
 
-  # Six reader pages, one token per block, each block carrying its own page number.
+  # Six reader pages, one word per block, each block carrying its own page number.
   def build_paged_book(user, title: "Paginado")
     count = Book::BLOCKS_PER_PAGE * 6
     book = user.books.create!(title: title, status: "ready", block_count: count, page_count: count)
 
     count.times do |index|
-      text = "Bloque #{index + 1}: ella habló."
-      block = book.blocks.create!(position: index, kind: "paragraph", page_number: index + 1, text: text)
-      sentence = book.sentences.create!(block: block, position: 0, char_start: 0,
-                                        char_end: text.length, text: text)
-      start = text.index("ella")
-      book.tokens.create!(block: block, sentence: sentence, position: 0,
-                          char_start: start, char_end: start + 4, surface: "ella", pos: "PRON")
+      build_block_with_words(book, position: index,
+                             text: "Bloque #{index + 1}: ella habló.",
+                             words: [ { surface: "ella", lemma: "ella", pos: "PRON" } ])
     end
 
     book

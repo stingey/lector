@@ -8,13 +8,15 @@ class BlockRenderer
   include ActionView::RecordIdentifier
 
   # Lemma ids the reader has saved, mapped to their study status, so a saved word
-  # highlights in every one of its conjugations.
+  # highlights in every one of its conjugations. Lemma texts come in resolved for the
+  # whole page, because the blob stores ids rather than repeating the text per word.
   #
   # Bookmarked positions are separate from that: a bookmark marks one occurrence of one
   # word, because it stands for a place in the book rather than for vocabulary.
-  def initialize(block, tokens:, statuses_by_lemma: {}, bookmarked_positions: [])
+  def initialize(block, lemma_texts: {}, statuses_by_lemma: {}, bookmarked_positions: [])
     @block = block
-    @tokens = tokens
+    @tokens = block.tokens
+    @lemma_texts = lemma_texts
     @statuses_by_lemma = statuses_by_lemma
     @bookmarked_positions = bookmarked_positions.to_set
   end
@@ -39,7 +41,7 @@ class BlockRenderer
 
   private
 
-  attr_reader :block, :tokens, :statuses_by_lemma, :bookmarked_positions
+  attr_reader :block, :tokens, :lemma_texts, :statuses_by_lemma, :bookmarked_positions
 
   def text
     @text ||= block.text.to_s
@@ -60,7 +62,7 @@ class BlockRenderer
       class: classes.join(" "),
       "data-token-id" => token.id,
       "data-lemma-id" => token.lemma_id,
-      "data-lemma" => token.lemma_text,
+      "data-lemma" => lemma_texts[token.lemma_id],
       "data-grammar" => token.grammar_summary
     }
 

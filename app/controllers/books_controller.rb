@@ -50,7 +50,7 @@ class BooksController < ApplicationController
                    .where(position: offset...(offset + Book::BLOCKS_PER_PAGE))
                    .includes(book_image: { file_attachment: :blob })
 
-    @tokens_by_block = tokens_for(@blocks)
+    @lemma_texts = lemma_texts_for(@blocks)
     @statuses_by_lemma = statuses_by_lemma
     @bookmarked_positions = bookmarked_positions(offset)
     @bookmark_count = current_user.bookmarks.where(book: @book).count
@@ -73,14 +73,13 @@ class BooksController < ApplicationController
     params.expect(book: [ :title, :file ])
   end
 
-  # One query for the whole page, with the lemma text joined in so the renderer
-  # never has to look a word up on its own.
-  def tokens_for(blocks)
-    Token.where(block_id: blocks.map(&:id))
-         .left_joins(:lemma)
-         .select("tokens.*", "lemmas.text AS lemma_text")
-         .order(:block_id, :position)
-         .group_by(&:block_id)
+  # One query for every lemma on the page. The blob stores lemma ids rather than
+  # repeating the text 3,000 times, so this is what turns them back into words.
+  def lemma_texts_for(blocks)
+    ids = blocks.flat_map(&:lemma_ids).uniq
+    return {} if ids.empty?
+
+    Lemma.where(id: ids).pluck(:id, :text).to_h
   end
 
   # Every saved word, mapped to how it should be highlighted. This is the whole

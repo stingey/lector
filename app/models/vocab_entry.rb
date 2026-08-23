@@ -33,7 +33,7 @@ class VocabEntry < ApplicationRecord
 
   # The word this entry was saved from, if its book has not been re-ingested since.
   def source_token
-    source_block&.tokens&.find_by(position: source_word_position)
+    source_block&.token_at(source_word_position)
   end
 
   # Distinct surface forms of this word the reader has actually met in their books.

@@ -81,7 +81,8 @@ class BookmarkFlowTest < ActionDispatch::IntegrationTest
   test "removing a bookmark from the word card returns the button, not a redirect" do
     bookmark = @user.bookmarks.create!(token: @token)
 
-    delete bookmark_path(bookmark), headers: { "Turbo-Frame" => "bookmark_token_#{@token.id}" }
+    delete bookmark_path(bookmark),
+           headers: { "Turbo-Frame" => ActionView::RecordIdentifier.dom_id(@token, :bookmark) }
 
     assert_response :success
     assert_select "[data-bookmark-placed=false]"
@@ -110,10 +111,7 @@ class BookmarkFlowTest < ActionDispatch::IntegrationTest
   # A second paragraph further into the book, so reading order is something other
   # than insertion order.
   def append_block_with_token(book, position:, text:)
-    block = book.blocks.create!(position: position, kind: "paragraph", page_number: 1, text: text)
-    sentence = book.sentences.create!(block: block, position: 0, char_start: 0, char_end: text.length, text: text)
-
-    book.tokens.create!(block: block, sentence: sentence, position: 0,
-                        char_start: 0, char_end: 4, surface: "Vino", pos: "VERB")
+    build_block_with_words(book, position: position, text: text,
+                           words: [ { surface: "Vino", lemma: "venir", pos: "VERB" } ])[:tokens].first
   end
 end

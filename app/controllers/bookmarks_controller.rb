@@ -36,10 +36,6 @@ class BookmarksController < ApplicationController
 
   private
 
-  def find_token(id)
-    Token.joins(:book).where(books: { user_id: current_user.id }).find(id)
-  end
-
   def render_button(token)
     render partial: "bookmarks/button",
            locals: { token: token,

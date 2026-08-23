@@ -1,7 +1,7 @@
 <%# Every kind of text block gets word spans, headings included: a chapter title is
     still Spanish you might not know, and it means a misclassified block stays
     fully usable rather than becoming dead text. %>
-<% renderer = BlockRenderer.new(block, tokens: tokens,
+<% renderer = BlockRenderer.new(block, lemma_texts: lemma_texts,
                                        statuses_by_lemma: statuses_by_lemma,
                                        bookmarked_positions: bookmarked_positions) %>
 <% case block.kind

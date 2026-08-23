@@ -115,13 +115,9 @@ class BookmarkTest < ApplicationSystemTestCase
     book = user.books.create!(title: "Cuentos", status: "ready", block_count: count, page_count: count)
 
     count.times do |index|
-      text = "Bloque #{index + 1}: ella dijo la verdad."
-      block = book.blocks.create!(position: index, kind: "paragraph", page_number: index + 1, text: text)
-      sentence = book.sentences.create!(block: block, position: 0, char_start: 0, char_end: text.length, text: text)
-
-      offset = text.index("ella")
-      book.tokens.create!(block: block, sentence: sentence, position: 0,
-                          char_start: offset, char_end: offset + 4, surface: "ella", pos: "PRON")
+      build_block_with_words(book, position: index,
+                             text: "Bloque #{index + 1}: ella dijo la verdad.",
+                             words: [ { surface: "ella", lemma: "ella", pos: "PRON" } ])
     end
 
     book

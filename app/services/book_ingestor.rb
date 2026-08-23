@@ -127,12 +127,18 @@ class BookIngestor
 
     Book.transaction do
       resolve_lemmas(buffer)
-      buffer.each { |payload| payload["words"] = words_for(payload) }
+      prepare_words(buffer)
 
       block_ids = insert_blocks(buffer, images_dir)
-      sentence_ids = insert_sentences(buffer, block_ids)
-      insert_tokens(buffer, block_ids, sentence_ids)
+      insert_sentences(buffer, block_ids)
       accumulate_lemma_stats(buffer, block_ids)
+    end
+  end
+
+  def prepare_words(buffer)
+    buffer.each do |payload|
+      payload["words"] = words_for(payload)
+      @word_count += payload["words"].size
     end
   end
 
@@ -245,40 +251,6 @@ class BookIngestor
         entry
       end
     }
-  end
-
-  def insert_tokens(buffer, block_ids, sentence_ids)
-    rows = []
-
-    buffer.each do |payload|
-      block_id = block_ids.fetch(payload["position"])
-      index = 0
-
-      Array(payload["sentences"]).each do |sentence|
-        sentence_id = sentence_ids.fetch([ block_id, sentence["position"] ])
-
-        sentence["tokens"].each do |token|
-          rows << {
-            book_id: book.id,
-            block_id: block_id,
-            sentence_id: sentence_id,
-            lemma_id: @lemma_ids[lemma_key(token)],
-            position: index,
-            char_start: token["start"],
-            char_end: token["end"],
-            surface: token["surface"],
-            pos: token["pos"],
-            morph: token["morph"] || {}
-          }
-          index += 1
-        end
-      end
-    end
-
-    return if rows.empty?
-
-    Token.insert_all(rows)
-    @word_count += rows.size
   end
 
   # Collects every distinct lemma in the batch, inserts the ones we have not seen

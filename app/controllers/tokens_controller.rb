@@ -24,10 +24,6 @@ class TokensController < ApplicationController
   private
 
   def set_token
-    @token = Token.joins(:book)
-                  .where(books: { user_id: current_user.id })
-                  .left_joins(:lemma)
-                  .select("tokens.*", "lemmas.text AS lemma_text")
-                  .find(params[:id])
+    @token = find_token(params[:id])
   end
 end

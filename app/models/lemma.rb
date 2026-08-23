@@ -1,5 +1,5 @@
 class Lemma < ApplicationRecord
-  has_many :tokens, dependent: :nullify
+  has_many :book_lemmas, dependent: :delete_all
   has_many :vocab_entries, dependent: :destroy
   has_many :glosses, dependent: :destroy
 

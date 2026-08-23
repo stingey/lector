@@ -57,14 +57,6 @@ class WordsController < ApplicationController
 
   private
 
-  def find_token(id)
-    Token.joins(:book)
-         .where(books: { user_id: current_user.id })
-         .left_joins(:lemma)
-         .select("tokens.*", "lemmas.text AS lemma_text")
-         .find(id)
-  end
-
   # One grouped read of the rollup for the whole page rather than a count per row.
   def occurrence_counts(entries)
     rollup_for(entries).group(:lemma_id).sum(:count)

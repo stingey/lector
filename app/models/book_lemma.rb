@@ -14,7 +14,7 @@ class BookLemma < ApplicationRecord
   def sample_token
     return nil if sample_block_id.blank?
 
-    Block.find_by(id: sample_block_id)&.tokens&.find_by(position: sample_word_position)
+    Block.find_by(id: sample_block_id)&.token_at(sample_word_position)
   end
 
   # Surface forms across several books of the same reader, merged and ranked.

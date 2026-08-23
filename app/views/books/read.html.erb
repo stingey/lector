@@ -5,7 +5,7 @@
            data-action="click->reader#select mouseover->reader#hover mouseout->reader#unhover">
     <% @blocks.each do |block| %>
       <%= render "books/block", block: block,
-                                tokens: @tokens_by_block.fetch(block.id, []),
+                                lemma_texts: @lemma_texts,
                                 statuses_by_lemma: @statuses_by_lemma,
                                 bookmarked_positions: @bookmarked_positions.fetch(block.id, []) %>
     <% end %>

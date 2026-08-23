@@ -21,7 +21,7 @@ class Bookmark < ApplicationRecord
   end
 
   def token
-    block&.tokens&.find_by(position: word_position)
+    block&.token_at(word_position)
   end
 
   def page
