@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_23_010000) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_23_020000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -66,6 +66,21 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_23_010000) do
     t.datetime "updated_at", null: false
     t.index ["book_id", "checksum"], name: "index_book_images_on_book_id_and_checksum", unique: true
     t.index ["book_id"], name: "index_book_images_on_book_id"
+  end
+
+  create_table "book_lemmas", force: :cascade do |t|
+    t.bigint "book_id", null: false
+    t.bigint "lemma_id", null: false
+    t.integer "count", default: 0, null: false
+    t.jsonb "surfaces", default: {}, null: false
+    t.bigint "sample_block_id"
+    t.integer "sample_word_position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["book_id", "lemma_id"], name: "index_book_lemmas_on_book_id_and_lemma_id", unique: true
+    t.index ["book_id"], name: "index_book_lemmas_on_book_id"
+    t.index ["lemma_id", "book_id"], name: "index_book_lemmas_on_lemma_id_and_book_id"
+    t.index ["lemma_id"], name: "index_book_lemmas_on_lemma_id"
   end
 
   create_table "bookmarks", force: :cascade do |t|
@@ -377,6 +392,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_23_010000) do
   add_foreign_key "blocks", "book_images"
   add_foreign_key "blocks", "books"
   add_foreign_key "book_images", "books"
+  add_foreign_key "book_lemmas", "books"
+  add_foreign_key "book_lemmas", "lemmas"
   add_foreign_key "bookmarks", "books"
   add_foreign_key "bookmarks", "tokens", on_delete: :cascade
   add_foreign_key "bookmarks", "users"

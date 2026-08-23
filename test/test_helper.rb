@@ -62,6 +62,13 @@ module BookBuilder
     end
 
     block.update!(words: words)
+
+    tokens.group_by(&:lemma_id).each do |lemma_id, group|
+      BookLemma.create!(book: book, lemma_id: lemma_id, count: group.size,
+                        surfaces: group.each_with_object(Hash.new(0)) { |token, totals| totals[token.surface] += 1 },
+                        sample_block_id: block.id, sample_word_position: group.first.position)
+    end
+
     book.update!(word_count: tokens.size)
     verb = tokens.find { |token| token.surface == "dijo" }
 

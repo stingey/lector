@@ -11,6 +11,7 @@ class Book < ApplicationRecord
   has_many :blocks, -> { order(:position) }
   has_many :sentences
   has_many :tokens
+  has_many :book_lemmas
   has_many :book_images, dependent: :destroy
   has_many :reading_progresses, dependent: :delete_all
   has_many :bookmarks, dependent: :delete_all
@@ -33,6 +34,7 @@ class Book < ApplicationRecord
   # blocks. Used both when removing a book and when re-ingesting one. Bookmarks go
   # with the tokens by cascade, since re-ingesting changes every offset they point at.
   def purge_content!
+    BookLemma.where(book_id: id).delete_all
     Token.where(book_id: id).delete_all
     Sentence.where(book_id: id).delete_all
     Block.where(book_id: id).delete_all
