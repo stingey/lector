@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_23_030000) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_23_040000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -336,22 +336,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_23_030000) do
     t.index ["key"], name: "index_solid_queue_semaphores_on_key", unique: true
   end
 
-  create_table "tokens", force: :cascade do |t|
-    t.bigint "book_id", null: false
-    t.bigint "block_id", null: false
-    t.bigint "sentence_id", null: false
-    t.bigint "lemma_id"
-    t.integer "position", null: false
-    t.integer "char_start", null: false
-    t.integer "char_end", null: false
-    t.string "surface", null: false
-    t.string "pos"
-    t.jsonb "morph", default: {}, null: false
-    t.index ["block_id", "position"], name: "index_tokens_on_block_id_and_position"
-    t.index ["lemma_id", "book_id"], name: "index_tokens_on_lemma_id_and_book_id"
-    t.index ["sentence_id"], name: "index_tokens_on_sentence_id"
-  end
-
   create_table "users", force: :cascade do |t|
     t.string "email_address", null: false
     t.string "password_digest", null: false
@@ -416,10 +400,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_23_030000) do
   add_foreign_key "solid_queue_ready_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
-  add_foreign_key "tokens", "blocks"
-  add_foreign_key "tokens", "books"
-  add_foreign_key "tokens", "lemmas"
-  add_foreign_key "tokens", "sentences"
   add_foreign_key "vocab_entries", "blocks", column: "source_block_id", on_delete: :nullify
   add_foreign_key "vocab_entries", "books", column: "source_book_id", on_delete: :nullify
   add_foreign_key "vocab_entries", "lemmas"

@@ -36,11 +36,8 @@ class ReadingSizeTest < ApplicationSystemTestCase
   end
 
   test "zooming stops at the ends of the range instead of running away" do
-    20.times { click_on "A+" }
-    biggest = font_size
-
-    20.times { click_on "A−" }
-    smallest = font_size
+    biggest = zoom_to_the_end("A+")
+    smallest = zoom_to_the_end("A−")
 
     assert biggest > smallest
     assert smallest > 8, "the text should never shrink to nothing"
@@ -48,6 +45,25 @@ class ReadingSizeTest < ApplicationSystemTestCase
   end
 
   private
+
+  # Presses until the size holds still, which is the clamp doing its job. Pressed a
+  # fixed number of times, the driver can dispatch faster than the click handler runs,
+  # and a dropped press is indistinguishable from having reached the end of the range.
+  # Two unchanged presses in a row is the clamp; one is a lost click.
+  def zoom_to_the_end(button, presses: 24)
+    size = font_size
+    unchanged = 0
+
+    presses.times do
+      click_on button
+      current = font_size
+      unchanged = current == size ? unchanged + 1 : 0
+      size = current
+      break if unchanged >= 2
+    end
+
+    size
+  end
 
   def measure
     yield
