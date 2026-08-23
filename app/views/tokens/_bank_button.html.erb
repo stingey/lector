@@ -11,7 +11,7 @@
       <span class="badge"><%= status_label(entry) %></span>
       <%= button_to "Remove", word_path(entry, token_id: token.id),
                     method: :delete,
-                    class: "btn btn--quiet small btn--danger" %>
+                    class: "btn small btn--danger" %>
     <% else %>
       <%= button_to "+ Add to word bank", add_words_path,
                     params: { token_id: token.id },

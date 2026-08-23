@@ -6,7 +6,15 @@
     two. %>
 <%= turbo_frame_tag "word_card" do %>
   <div class="word-card">
-    <button type="button" class="word-card__close" data-action="click->reader#closeCard" aria-label="Close">&times;</button>
+    <%# Actions first. The pointer arrives at the top edge of the card, right where it
+        left the word, and the card only ever grows downwards as the translation lands,
+        so this is the one row that never moves out from under it. %>
+    <div class="word-card__actions">
+      <%= render "tokens/bank_button", token: @token, entry: @entry %>
+      <%= render "bookmarks/button", token: @token, bookmark: @bookmark, total: @bookmark_count %>
+      <span class="page-head__spacer"></span>
+      <button type="button" class="word-card__close" data-action="click->reader#closeCard" aria-label="Close">&times;</button>
+    </div>
 
     <div class="word-card__head">
       <span class="word-card__surface"><%= @token.surface %></span>
@@ -29,12 +37,6 @@
     <div class="word-card__section">
       <div class="word-card__label">In context</div>
       <div class="word-card__sentence"><%= highlight_target(@token) %></div>
-    </div>
-
-    <div class="word-card__actions">
-      <%= render "tokens/bank_button", token: @token, entry: @entry %>
-      <span class="page-head__spacer"></span>
-      <%= render "bookmarks/button", token: @token, bookmark: @bookmark, total: @bookmark_count %>
     </div>
   </div>
 <% end %>

@@ -10,12 +10,12 @@
         data-bookmark-total="<%= total %>">
     <% if bookmark.present? %>
       <%= button_to "Remove bookmark", bookmark_path(bookmark), method: :delete,
-                    class: "btn btn--quiet small",
+                    class: "btn small",
                     title: "Stop marking this spot" %>
     <% else %>
       <%= button_to "Bookmark this spot", bookmarks_path,
                     params: { token_id: token.id },
-                    class: "btn btn--quiet small",
+                    class: "btn small",
                     title: "Mark this word so you can come back to it" %>
     <% end %>
   </span>

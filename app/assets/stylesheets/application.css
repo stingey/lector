@@ -408,7 +408,7 @@ h2 { font-size: 1.1rem; }
   opacity: 0;
   transition: opacity 0.08s ease;
   width: min(30rem, calc(100vw - 2rem));
-  padding: 1.1rem 1.25rem 1.25rem;
+  padding: 0.8rem 1.1rem 1.25rem;
   background: var(--paper);
   border: 1px solid var(--line-strong);
   border-radius: 10px;
@@ -511,17 +511,16 @@ h2 { font-size: 1.1rem; }
   padding: 0 2px;
 }
 
+/* The card's first row, so the two things you came to do are under the pointer the
+   moment the card opens. */
 .word-card__actions {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-top: 1rem;
+  margin-bottom: 0.85rem;
 }
 
 .word-card__close {
-  position: absolute;
-  top: 0.6rem;
-  right: 0.7rem;
   border: 0;
   background: none;
   color: var(--ink-faint);
