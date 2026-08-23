@@ -33,15 +33,16 @@ class VocabEntry < ApplicationRecord
 
   # Distinct surface forms of this word the reader has actually met in their books.
   def encountered_forms(limit: 12)
-    Token.where(lemma_id: lemma_id)
-         .where(book_id: user.books.select(:id))
-         .group(:surface)
-         .order(Arel.sql("COUNT(*) DESC"))
-         .limit(limit)
-         .count
+    BookLemma.merged_surfaces(rollup_rows, limit: limit)
   end
 
   def occurrence_count
-    Token.where(lemma_id: lemma_id, book_id: user.books.select(:id)).count
+    rollup_rows.sum(:count)
+  end
+
+  private
+
+  def rollup_rows
+    BookLemma.where(lemma_id: lemma_id).for_books(user.books.select(:id))
   end
 end

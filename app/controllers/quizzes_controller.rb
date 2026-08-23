@@ -63,10 +63,15 @@ class QuizzesController < ApplicationController
     { token: token, sentence: token.sentence }
   end
 
+  # No saved source: quote the sample occurrence the rollup recorded, from one of the
+  # reader's books at random. Cheaper than sampling every occurrence, and the reader
+  # cannot tell the difference.
   def random_token(entry)
-    Token.where(lemma_id: entry.lemma_id, book_id: current_user.books.select(:id))
-         .order(Arel.sql("RANDOM()"))
-         .first
+    BookLemma.where(lemma_id: entry.lemma_id)
+             .for_books(current_user.books.select(:id))
+             .order(Arel.sql("RANDOM()"))
+             .first
+             &.sample_token
   end
 
   def sentence_from(id)

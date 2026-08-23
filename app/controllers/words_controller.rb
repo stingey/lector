@@ -64,28 +64,31 @@ class WordsController < ApplicationController
          .find(id)
   end
 
-  # One grouped query for the whole page rather than a count per row.
+  # One grouped read of the rollup for the whole page rather than a count per row.
   def occurrence_counts(entries)
-    lemma_ids = entries.map(&:lemma_id)
-    return {} if lemma_ids.empty?
-
-    Token.where(lemma_id: lemma_ids, book_id: current_user.books.select(:id))
-         .group(:lemma_id)
-         .count
+    rollup_for(entries).group(:lemma_id).sum(:count)
   end
 
-  # The distinct surface forms this reader has actually met, per lemma.
+  # The distinct surface forms this reader has actually met, per lemma. A word can come
+  # from more than one book, so the per-book maps are merged.
   def encountered_forms(entries)
+    rollup_for(entries).pluck(:lemma_id, :surfaces)
+                       .group_by(&:first)
+                       .transform_values { |rows|
+                         rows.map(&:last)
+                             .each_with_object(Hash.new(0)) { |surfaces, totals|
+                               surfaces.each { |surface, uses| totals[surface] += uses }
+                             }
+                             .sort_by { |_, uses| -uses }
+                             .first(8)
+                       }
+  end
+
+  def rollup_for(entries)
     lemma_ids = entries.map(&:lemma_id)
-    return {} if lemma_ids.empty?
+    return BookLemma.none if lemma_ids.empty?
 
-    counts = Token.where(lemma_id: lemma_ids, book_id: current_user.books.select(:id))
-                  .group(:lemma_id, :surface)
-                  .count
-
-    counts.each_with_object({}) { |((lemma_id, surface), count), memo|
-      (memo[lemma_id] ||= []) << [ surface, count ]
-    }.transform_values { |forms| forms.sort_by { |_, count| -count }.first(8) }
+    BookLemma.where(lemma_id: lemma_ids).for_books(current_user.books.select(:id))
   end
 
   def stats
