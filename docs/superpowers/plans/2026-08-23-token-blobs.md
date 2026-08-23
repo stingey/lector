@@ -1,5 +1,13 @@
 # Token Blobs Implementation Plan
 
+> **Executed 2026-08-23**, commits `1bf1144`..`903cfea`. Word storage per book went from
+> 32.7 MB of token rows to 6.2 MB of inline words plus 3.3 MB of rollup, page reads
+> unchanged, and the word bank's aggregate query from 240 ms to 9 ms. Two things landed
+> differently from the plan: the reader's bookmark rendering had to move from Task 6 into
+> Task 5, because removing `bookmarks.token_id` breaks the page immediately; and
+> `Book#saved_lemma_ids_for` plus `Lemma#has_many :tokens` turned out to be dead code and
+> were deleted rather than ported.
+
 > **For agentic workers:** Implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. Run the full suite at the end of every task and commit before starting the next one.
 
 **Goal:** Stop storing one database row per word. Move each block's words into a single JSONB array on `blocks`, and serve the aggregates that used to scan `tokens` from a small per-book rollup table.
