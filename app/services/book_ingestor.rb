@@ -124,6 +124,8 @@ class BookIngestor
 
     Book.transaction do
       resolve_lemmas(buffer)
+      buffer.each { |payload| payload["words"] = words_for(payload) }
+
       block_ids = insert_blocks(buffer, images_dir)
       sentence_ids = insert_sentences(buffer, block_ids)
       insert_tokens(buffer, block_ids, sentence_ids)
@@ -141,6 +143,7 @@ class BookIngestor
         kind: payload["kind"],
         page_number: payload["page"],
         text: payload["text"],
+        words: payload["words"],
         created_at: now,
         updated_at: now
       }
@@ -169,6 +172,32 @@ class BookIngestor
 
     result = Sentence.insert_all(rows, returning: %i[id block_id position])
     result.rows.to_h { |id, block_id, position| [ [ block_id, position ], id ] }
+  end
+
+  # The word array the reader reads back. Numbered across the whole block rather than
+  # per sentence, because that is the order the renderer walks.
+  def words_for(payload)
+    position = -1
+
+    Array(payload["sentences"]).flat_map { |sentence|
+      sentence["tokens"].map do |token|
+        position += 1
+
+        entry = {
+          "p" => position,
+          "s" => token["start"],
+          "e" => token["end"],
+          "w" => token["surface"],
+          "n" => sentence["position"]
+        }
+
+        lemma_id = @lemma_ids[lemma_key(token)]
+        entry["l"] = lemma_id if lemma_id
+        entry["x"] = token["pos"] if token["pos"].present?
+        entry["m"] = token["morph"] if token["morph"].present?
+        entry
+      end
+    }
   end
 
   def insert_tokens(buffer, block_ids, sentence_ids)

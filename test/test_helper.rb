@@ -36,17 +36,22 @@ module BookBuilder
     sentence = book.sentences.create!(block: block, position: 0, char_start: 0, char_end: text.length, text: text)
 
     cursor = 0
+    words = []
 
     tokens = WORDS.each_with_index.map do |word, index|
       # Scanned forward from the previous token so a short word like "la" is not
       # matched inside an earlier one ("Ella").
       offset = text.index(word[:surface], cursor)
       cursor = offset + word[:surface].length
+      lemma = Lemma.find_or_create_by!(text: word[:lemma], pos: word[:pos], language: "es")
+
+      words << { "p" => index, "s" => offset, "e" => cursor, "w" => word[:surface],
+                 "n" => 0, "l" => lemma.id, "x" => word[:pos], "m" => word[:morph] }
 
       book.tokens.create!(
         block: block,
         sentence: sentence,
-        lemma: Lemma.find_or_create_by!(text: word[:lemma], pos: word[:pos], language: "es"),
+        lemma: lemma,
         position: index,
         char_start: offset,
         char_end: offset + word[:surface].length,
@@ -56,6 +61,7 @@ module BookBuilder
       )
     end
 
+    block.update!(words: words)
     book.update!(word_count: tokens.size)
     verb = tokens.find { |token| token.surface == "dijo" }
 
