@@ -113,7 +113,45 @@ class RegistrationTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "an invite code is not asked for while signup is open" do
+    get new_registration_path
+
+    assert_select "input[name=invite_code]", false
+    assert_difference -> { User.count }, 1 do
+      post registration_path, params: valid_params
+    end
+  end
+
+  test "a closed signup turns away anyone without the code" do
+    with_invite_code "abrelasrejas" do
+      get new_registration_path
+      assert_select "input[name=invite_code]"
+
+      assert_no_difference -> { User.count } do
+        post registration_path, params: valid_params
+      end
+      assert_response :unprocessable_entity
+      assert_select ".flash--alert", text: /invite code is not right/
+
+      assert_no_difference -> { User.count } do
+        post registration_path, params: valid_params.merge(invite_code: "wrong")
+      end
+
+      assert_difference -> { User.count }, 1 do
+        post registration_path, params: valid_params.merge(invite_code: "abrelasrejas")
+      end
+      assert_redirected_to root_path
+    end
+  end
+
   private
+
+  def with_invite_code(code)
+    ENV["SIGNUP_INVITE_CODE"] = code
+    yield
+  ensure
+    ENV.delete("SIGNUP_INVITE_CODE")
+  end
 
   def new_user
     User.find_by(email_address: "nuevo@example.com")

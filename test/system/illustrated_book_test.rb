@@ -35,7 +35,7 @@ class IllustratedBookTest < ApplicationSystemTestCase
     assert block.present?, "the riddle should survive ingest"
     assert_equal "paragraph", block.kind
 
-    visit read_book_path(@book, page: @book.page_for_block_position(block.position))
+    visit_reader(@book, page: @book.page_for_block_position(block.position))
 
     assert_selector "p", text: /#{RIDDLE}/
     assert_selector "p span.w", text: "IMAGINAOS"
@@ -49,7 +49,7 @@ class IllustratedBookTest < ApplicationSystemTestCase
     heading = @book.blocks.where(kind: "heading").find { |block| block.tokens.any? }
     assert heading.present?, "expected a heading with word tokens"
 
-    visit read_book_path(@book, page: @book.page_for_block_position(heading.position))
+    visit_reader(@book, page: @book.page_for_block_position(heading.position))
 
     assert_selector "h2.reader__heading span.w"
   end

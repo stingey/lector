@@ -7,7 +7,7 @@ class WordCardPlacementTest < ApplicationSystemTestCase
     @user = users(:one)
     @book = build_wordy_book(@user)
     sign_in_through_the_form
-    visit read_book_path(@book)
+    visit_reader(@book)
   end
 
   test "the card opens directly under the word that was clicked" do

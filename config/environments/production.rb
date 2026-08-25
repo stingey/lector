@@ -21,8 +21,12 @@ Rails.application.configure do
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
   # config.asset_host = "http://assets.example.com"
 
-  # Store uploaded files on the local file system (see config/storage.yml for options).
-  config.active_storage.service = :local
+  # Uploaded PDFs and the images pulled out of them need somewhere durable to live. A
+  # dyno's disk is not that: it is wiped on every restart, which happens at least daily.
+  # Set S3_BUCKET with AWS credentials and uploads survive; until then they last only as
+  # long as the dyno does. The bundled sample book is unaffected either way, since it
+  # ships in the repo rather than through Active Storage.
+  config.active_storage.service = ENV["S3_BUCKET"].present? ? :amazon : :local
 
   # Assume all access to the app is happening through a SSL-terminating reverse proxy.
   config.assume_ssl = true

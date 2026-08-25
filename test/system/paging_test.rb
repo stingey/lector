@@ -8,7 +8,7 @@ class PagingTest < ApplicationSystemTestCase
   end
 
   test "the right arrow turns to the next page and the left arrow comes back" do
-    visit read_book_path(@book)
+    visit_reader(@book)
     assert_text "Bloque 1"
 
     send_key :right
@@ -20,12 +20,12 @@ class PagingTest < ApplicationSystemTestCase
   end
 
   test "arrows stop at the ends of the book instead of wrapping" do
-    visit read_book_path(@book)
+    visit_reader(@book)
 
     send_key :left
     assert_text "Bloque 1 de la prueba."
 
-    visit read_book_path(@book, page: @book.total_pages)
+    visit_reader(@book, page: @book.total_pages)
     send_key :right
     assert_selector ".reader-bar", text: "#{@book.total_pages} / #{@book.total_pages}"
   end

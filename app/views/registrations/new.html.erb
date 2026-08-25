@@ -31,6 +31,15 @@
                               maxlength: User::MAX_PASSWORD_LENGTH %>
     </div>
 
+    <%# Only present when the deployment is closed, so an open one costs nobody a step. %>
+    <% if Registration.invite_required? %>
+      <div class="field">
+        <%= label_tag :invite_code, "Invite code", class: "field__label" %>
+        <%= text_field_tag :invite_code, nil, required: true, autocomplete: "off" %>
+        <p class="field__hint">This app is invite only for now.</p>
+      </div>
+    <% end %>
+
     <%= form.submit "Create account", class: "btn btn--primary btn--block" %>
   <% end %>
 <% end %>

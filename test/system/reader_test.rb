@@ -20,7 +20,7 @@ class ReaderTest < ApplicationSystemTestCase
     assert_selector ".book-row__title", text: /La sombra/
     take_screenshot_named "library"
 
-    visit read_book_path(@book)
+    visit_reader(@book)
 
     assert_selector "span.w", minimum: 50
     take_screenshot_named "reader"

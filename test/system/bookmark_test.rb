@@ -11,7 +11,7 @@ class BookmarkTest < ApplicationSystemTestCase
   end
 
   test "placing a bookmark, finding it in the list, and following it back" do
-    visit read_book_path(@book, page: 2)
+    visit_reader(@book, page: 2)
 
     word = find("span.w", match: :first)
     token_id = word["data-token-id"]
@@ -44,7 +44,7 @@ class BookmarkTest < ApplicationSystemTestCase
   end
 
   test "removing a bookmark clears the ribbon from the word" do
-    visit read_book_path(@book)
+    visit_reader(@book)
 
     word = find("span.w", match: :first)
     page.execute_script("arguments[0].scrollIntoView({ block: 'center' })", word)
@@ -60,7 +60,7 @@ class BookmarkTest < ApplicationSystemTestCase
   end
 
   test "with no bookmark the library offers a plain Continue at the last page read" do
-    visit read_book_path(@book, page: 3)
+    visit_reader(@book, page: 3)
     visit root_path
 
     assert_selector ".book-row__meta", text: /page 81 of/
@@ -74,7 +74,7 @@ class BookmarkTest < ApplicationSystemTestCase
     token_id = place_bookmark_on(2)
 
     # Read on past the mark: the button names the bookmark, so it still goes there.
-    visit read_book_path(@book, page: 3)
+    visit_reader(@book, page: 3)
     visit root_path
 
     click_on "Continue from bookmark"
@@ -95,7 +95,7 @@ class BookmarkTest < ApplicationSystemTestCase
   # Places a mark on the first word of a page the way a reader would, and returns the
   # token id so the caller can check it is the word we land back on.
   def place_bookmark_on(reader_page)
-    visit read_book_path(@book, page: reader_page)
+    visit_reader(@book, page: reader_page)
 
     word = find("span.w", match: :first)
     page.execute_script("arguments[0].scrollIntoView({ block: 'center' })", word)

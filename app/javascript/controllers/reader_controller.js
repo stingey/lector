@@ -25,9 +25,15 @@ export default class extends Controller {
     document.addEventListener("keydown", this.onKeydown)
     document.addEventListener("click", this.onDocumentClick)
     window.addEventListener("resize", this.onResize)
+
+    // Says the listeners are attached. The page's text renders on the server and so is
+    // on screen well before this runs, which leaves a window where an arrow key lands
+    // on nothing; tests wait for this rather than for the prose.
+    this.element.dataset.readerReady = "true"
   }
 
   disconnect() {
+    delete this.element.dataset.readerReady
     document.removeEventListener("turbo:frame-load", this.onFrameLoad)
     document.removeEventListener("keydown", this.onKeydown)
     document.removeEventListener("click", this.onDocumentClick)

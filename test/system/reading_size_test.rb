@@ -9,7 +9,7 @@ class ReadingSizeTest < ApplicationSystemTestCase
     @user = users(:one)
     @fixture = build_annotated_book(@user)
     sign_in_through_the_form
-    visit read_book_path(@fixture[:book])
+    visit_reader(@fixture[:book])
   end
 
   test "the column widens with the text so the line length holds steady" do
@@ -30,7 +30,7 @@ class ReadingSizeTest < ApplicationSystemTestCase
     3.times { click_on "A+" }
     chosen = font_size
 
-    visit read_book_path(@fixture[:book])
+    visit_reader(@fixture[:book])
 
     assert_in_delta chosen, font_size, 0.01
   end

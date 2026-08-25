@@ -10,6 +10,11 @@ class RegistrationsController < ApplicationController
   def create
     @user = User.new(registration_params)
 
+    unless Registration.invite?(params[:invite_code])
+      @user.errors.add(:base, "That invite code is not right.")
+      return render :new, status: :unprocessable_entity
+    end
+
     if @user.save
       sample = install_sample_book(@user)
       start_new_session_for @user

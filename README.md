@@ -205,17 +205,46 @@ heroku create
 heroku buildpacks:add --index 1 heroku/python
 heroku buildpacks:add heroku/ruby
 heroku addons:create heroku-postgresql:essential-0
-heroku config:set TRANSLATOR_API_KEY=sk-... RAILS_MASTER_KEY=$(cat config/master.key)
+heroku config:set RAILS_MASTER_KEY=$(cat config/master.key) \
+                  APP_HOST=your-app.herokuapp.com \
+                  SOLID_QUEUE_IN_PUMA=1 \
+                  INGEST_MAX_PAGES=400 \
+                  TRANSLATOR_API_KEY=sk-...
 git push heroku main
-heroku ps:scale web=1 worker=1
+heroku ps:scale web=1
 ```
 
 `requirements.txt` installs spaCy and the Spanish model, roughly 50 MB, well inside
-the slug limit. Uploaded PDFs and extracted images need durable storage, so
-configure Active Storage for S3 before relying on it: Heroku's filesystem is
-ephemeral and anything written to disk disappears when a dyno restarts. The bundled
-sample is unaffected, since it is committed to the repo rather than uploaded, which
-means a deploy with no S3 configured still has a book that reads correctly.
+the slug limit. Both the Gemfile and `.ruby-version` name the Ruby version, and they
+have to agree: the buildpack reads the Gemfile and ignores `.ruby-version` entirely.
+
+`SOLID_QUEUE_IN_PUMA=1` runs the job supervisor inside the web dyno, so uploads
+process without paying for a second dyno. Ingest is the memory-hungry part, which is
+what `INGEST_MAX_PAGES` bounds: spaCy on a 512 MB dyno can otherwise get the whole
+dyno killed part way through a long book. Scale a real `worker` dyno instead if
+uploads matter more than the seven dollars.
+
+### Optional configuration
+
+Everything below is off until set, and the app is fully usable without any of it.
+
+| Variable | Effect when set |
+| --- | --- |
+| `S3_BUCKET` plus `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION` | Uploads go to S3 instead of the dyno's disk, so they survive a restart |
+| `SMTP_ADDRESS` plus `SMTP_USER_NAME`, `SMTP_PASSWORD`, `SMTP_PORT` | Password reset emails are actually delivered |
+| `SIGNUP_INVITE_CODE` | Registration asks for the code and turns away anyone without it |
+
+Without S3, an uploaded book's PDF and illustrations disappear when the dyno
+restarts, which happens at least daily. The bundled sample is unaffected, since it is
+committed to the repo rather than uploaded, so a deploy with no S3 configured still
+has a book that reads correctly.
+
+Without SMTP, a password reset is logged and dropped rather than raising, so the page
+still works but no mail arrives. A locked out account has to be recreated.
+
+Closing signup is worth doing before the link goes anywhere public: every reader who
+registers gets a copy of the sample installed for them, and can spend the owner's
+translation credit.
 
 ## Known limits
 
