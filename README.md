@@ -80,10 +80,22 @@ and the quiz all work offline. Set a key to turn on contextual meanings.
 
 ```bash
 export TRANSLATOR_API_KEY=sk-...
-export TRANSLATOR_MODEL=gpt-5-mini        # optional
+export TRANSLATOR_MODEL=gpt-5.4-mini      # optional
 export TRANSLATOR_PROVIDER=openai         # or anthropic
 export TRANSLATOR_BASE_URL=...            # optional, for an OpenAI-compatible gateway
+export TRANSLATOR_REASONING_EFFORT=low    # optional, gpt-5 models only
 ```
+
+Left alone, the gpt-5 models reason for six to ten seconds before naming a meaning,
+which is a long time to stare at a word you just clicked. Lookups therefore ask for
+the lowest effort the chosen model accepts, which answers in about two seconds
+without measurably worse readings. Raise it to `medium` or `high` to trade the
+latency back, or set it to an empty string to leave the parameter off.
+
+The generations disagree on what the lowest setting is called, so the default is
+chosen per model: `minimal` for `gpt-5` and `gpt-5-mini`, `low` for `gpt-5.4` and
+later. If a future model rejects the value, the lookup drops the parameter and
+retries rather than failing.
 
 `openai` works with anything speaking the chat-completions dialect, which includes
 Gemini's compatibility endpoint, Groq, and OpenRouter. Every lookup is cached by

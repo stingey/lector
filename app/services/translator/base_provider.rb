@@ -20,6 +20,7 @@ class Translator
         attempts += 1
         extract_json(request(system: system, user: user))
       rescue Translator::Error, Net::OpenTimeout, Net::ReadTimeout, JSON::ParserError => error
+        recover_from(error)
         retry if attempts < MAX_ATTEMPTS
         raise Translator::Error, "#{self.class.name}: #{error.message}"
       end
@@ -49,6 +50,11 @@ class Translator
 
     def content_from(response)
       raise NotImplementedError
+    end
+
+    # Last chance to adjust the request before the one retry. Providers that can
+    # narrow a failure into something survivable override this.
+    def recover_from(error)
     end
 
     def request(system:, user:)
