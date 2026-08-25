@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_23_040000) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_25_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -64,6 +64,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_23_040000) do
     t.integer "height"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "static_path"
     t.index ["book_id", "checksum"], name: "index_book_images_on_book_id_and_checksum", unique: true
     t.index ["book_id"], name: "index_book_images_on_book_id"
   end
@@ -113,6 +114,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_23_040000) do
     t.datetime "ingested_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "demo", default: false, null: false
     t.index ["user_id", "checksum"], name: "index_books_on_user_id_and_checksum", unique: true, where: "(checksum IS NOT NULL)"
     t.index ["user_id", "status"], name: "index_books_on_user_id_and_status"
     t.index ["user_id"], name: "index_books_on_user_id"

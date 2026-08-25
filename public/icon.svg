@@ -1,3 +1,6 @@
-<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="256" cy="256" r="256" fill="red"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Lector">
+  <rect width="512" height="512" rx="104" fill="#18181b"/>
+  <path d="M232 190C184 152 128 138 76 146v210c52-8 108 6 156 36z" fill="#ffffff"/>
+  <path d="M280 190c48-38 104-52 156-44v210c-52-8-108 6-156 36z" fill="#ffffff"/>
+  <path d="M344 156l80-8v120l-40-28-40 28z" fill="#b45309"/>
 </svg>

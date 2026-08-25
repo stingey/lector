@@ -54,12 +54,25 @@ Rails.application.configure do
   # migration for why.
   config.active_job.queue_adapter = :solid_queue
 
-  # Ignore bad email addresses and do not raise email delivery errors.
-  # Set this to true and configure the email server for immediate delivery to raise delivery errors.
-  # config.action_mailer.raise_delivery_errors = false
+  # No mail server is configured yet, so a password reset is written to the log and
+  # dropped rather than raising. The alternative is a 500 on the one page a locked out
+  # reader has left, which is worse than a reset that never arrives.
+  config.action_mailer.raise_delivery_errors = false
+  config.action_mailer.perform_deliveries = ENV["SMTP_ADDRESS"].present?
 
-  # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "example.com" }
+  # The host reset links point at. Set APP_HOST to the deployed domain.
+  config.action_mailer.default_url_options = { host: ENV.fetch("APP_HOST", "localhost:3000") }
+
+  if ENV["SMTP_ADDRESS"].present?
+    config.action_mailer.smtp_settings = {
+      address: ENV["SMTP_ADDRESS"],
+      port: ENV.fetch("SMTP_PORT", 587).to_i,
+      user_name: ENV["SMTP_USER_NAME"],
+      password: ENV["SMTP_PASSWORD"],
+      authentication: :plain,
+      enable_starttls_auto: true
+    }
+  end
 
   # Specify outgoing SMTP server. Remember to add smtp/* credentials via rails credentials:edit.
   # config.action_mailer.smtp_settings = {

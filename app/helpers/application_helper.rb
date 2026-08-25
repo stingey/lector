@@ -1,4 +1,14 @@
 module ApplicationHelper
+  # Icons live in public/ rather than the asset pipeline, so they carry no digest and a
+  # browser will keep showing the old one long after the file changes. Stamping them
+  # with the file's timestamp means redrawing the icon is enough to see it.
+  def icon_path(name)
+    file = Rails.public_path.join(name)
+    return "/#{name}" unless File.exist?(file)
+
+    "/#{name}?v=#{File.mtime(file).to_i}"
+  end
+
   # Shows the sentence a word came from with that word marked.
   #
   # Offsets are block-relative while the stored sentence text is trimmed, so the

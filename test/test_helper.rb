@@ -1,6 +1,17 @@
 ENV["RAILS_ENV"] ||= "test"
 require_relative "../config/environment"
 require "rails/test_help"
+require "tempfile"
+
+# Signing up installs the bundled sample, which is a 2,000 block book. Tests opt in
+# through with_bundled_sample instead, so only the test that is actually about the
+# shipped file pays for writing one.
+DemoBook.path = nil
+
+# The gloss path is the one place that reaches for a language model. A key exported in
+# a developer's shell would otherwise turn those tests into live, billed API calls, so
+# the credentials are dropped here and a test that wants a provider sets its own.
+%w[TRANSLATOR_API_KEY OPENAI_API_KEY ANTHROPIC_API_KEY].each { |key| ENV.delete(key) }
 
 module ActiveSupport
   class TestCase
@@ -96,11 +107,46 @@ module BookBuilder
   end
 end
 
+# Stands in for db/demo/content.json.gz with a book small enough to install in a
+# millisecond. Shaped exactly like the real export, lemma indexes and all.
+module BundledSampleHelper
+  SAMPLE = {
+    "title" => "Libro de muestra",
+    "language" => "es",
+    "page_count" => 1,
+    "lemmas" => [ [ "gato", "NOUN" ], [ "dormir", "VERB" ] ],
+    "images" => [ { "path" => "demo/0000.jpg", "checksum" => "muestra", "width" => 10, "height" => 20 } ],
+    "blocks" => [
+      { "position" => 0, "kind" => "paragraph", "page" => 1, "text" => "El gato duerme.",
+        "words" => [
+          { "p" => 0, "s" => 3, "e" => 7, "w" => "gato", "n" => 0, "l" => 0, "x" => "NOUN" },
+          { "p" => 1, "s" => 8, "e" => 14, "w" => "duerme", "n" => 0, "l" => 1, "x" => "VERB" }
+        ],
+        "sentences" => [ { "position" => 0, "start" => 0, "end" => 15, "text" => "El gato duerme." } ] },
+      { "position" => 1, "kind" => "image", "page" => 1, "text" => nil, "image" => "demo/0000.jpg",
+        "words" => [], "sentences" => [] }
+    ]
+  }.freeze
+
+  def with_bundled_sample(content = SAMPLE)
+    file = Tempfile.new([ "demo", ".json.gz" ])
+    file.binmode
+    file.write(ActiveSupport::Gzip.compress(JSON.generate(content)))
+    file.close
+
+    DemoBook.path = Pathname.new(file.path)
+    yield
+  ensure
+    DemoBook.path = nil
+    file&.unlink
+  end
+end
+
 class ActionDispatch::IntegrationTest
   include SignInHelper
-  include BookBuilder
 end
 
 class ActiveSupport::TestCase
   include BookBuilder
+  include BundledSampleHelper
 end

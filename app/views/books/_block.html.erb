@@ -6,9 +6,9 @@
                                        bookmarked_positions: bookmarked_positions) %>
 <% case block.kind
    when "image" %>
-  <% if block.book_image&.file&.attached? %>
+  <% if (source = block.book_image&.source) %>
     <figure class="reader__figure">
-      <%= image_tag block.book_image.file, alt: "", loading: "lazy" %>
+      <%= image_tag source, alt: "", loading: "lazy" %>
     </figure>
   <% end %>
 <% when "heading" %>

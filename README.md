@@ -63,8 +63,9 @@ bin/rails db:seed        # creates a development login
 bin/rails server
 ```
 
-Then sign in with `reader@example.com` / `password`, upload a Spanish PDF, and wait
-about a minute for a full novel.
+Then sign in with `reader@example.com` / `password`. The seeded account already has the
+bundled sample book to read; upload a Spanish PDF of your own and wait about a minute
+for a full novel.
 
 Run the background worker in a second terminal so uploads process:
 
@@ -89,6 +90,39 @@ Gemini's compatibility endpoint, Groq, and OpenRouter. Every lookup is cached by
 (lemma, word form, sentence), so a given word in a given sentence is paid for once
 and then served from Postgres forever. Expect a small fraction of a cent per new
 lookup.
+
+## The bundled sample book
+
+Every new account is given a copy of one book so there is something to read before
+anything has been uploaded, and so the app demonstrates itself on a fresh deploy with
+no object storage configured.
+
+It ships as two committed pieces:
+
+| What | Where | Size |
+| --- | --- | --- |
+| Text, words, sentences, lemmas | `db/demo/content.json.gz` | 1 MB |
+| Illustrations | `app/assets/images/demo/` | 7 MB |
+
+Each reader gets their own copy of the rows, because highlights, bookmarks and reading
+progress belong to one person. Installing costs about two seconds and happens inline
+during sign-up, which is what lets the demo work without a worker dyno running.
+
+Two details make the export portable. Words name their lemma by an index into a table
+of `[text, pos]` pairs rather than by id, since ids belong to the database they were
+written in; `DemoBook` resolves them against whatever lemmas the target database has.
+And illustrations are referenced by asset path through `book_images.static_path`
+instead of being Active Storage attachments, so they survive a restart on a host with
+ephemeral disk and no S3.
+
+To rebuild it from a book already ingested in development:
+
+```bash
+bin/rails demo:export BOOK=3 BLOCKS=2000   # 2,000 blocks is 50 reader pages
+```
+
+Tests install a two-block stand-in instead, through `with_bundled_sample`. One test in
+`test/services/demo_book_test.rb` loads the real file, so a bad export fails the suite.
 
 ## How ingest works
 
@@ -179,7 +213,9 @@ heroku ps:scale web=1 worker=1
 `requirements.txt` installs spaCy and the Spanish model, roughly 50 MB, well inside
 the slug limit. Uploaded PDFs and extracted images need durable storage, so
 configure Active Storage for S3 before relying on it: Heroku's filesystem is
-ephemeral and anything written to disk disappears when a dyno restarts.
+ephemeral and anything written to disk disappears when a dyno restarts. The bundled
+sample is unaffected, since it is committed to the repo rather than uploaded, which
+means a deploy with no S3 configured still has a book that reads correctly.
 
 ## Known limits
 

@@ -34,6 +34,8 @@
                   &middot; <%= book.page_count %> pages
                 <% end %>
                 <% if book.author.present? %>&middot; <%= book.author %><% end %>
+                <%# So the book nobody uploaded is not a mystery. %>
+                <% if book.demo? %>&middot; sample<% end %>
               <% elsif book.failed? %>
                 Could not be processed
               <% else %>

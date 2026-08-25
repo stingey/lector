@@ -19,12 +19,45 @@ class RegistrationTest < ActionDispatch::IntegrationTest
     assert_select ".topbar__brand", text: "Lector"
   end
 
-  test "a new account starts with an empty library and word bank" do
+  test "a new account starts with nothing of its own to read" do
     post registration_path, params: valid_params
-    user = User.find_by(email_address: "nuevo@example.com")
 
-    assert_equal 0, user.books.count
-    assert_equal 0, user.vocab_entries.count
+    assert_equal 0, new_user.books.where(demo: false).count
+    assert_equal 0, new_user.vocab_entries.count
+  end
+
+  test "a new account is handed the bundled sample so there is something to read" do
+    with_bundled_sample do
+      post registration_path, params: valid_params
+
+      book = new_user.books.sole
+      assert book.demo?
+      assert book.ready?
+      assert_equal 0, new_user.vocab_entries.count, "the sample comes with no words already saved"
+
+      follow_redirect!
+      assert_select ".flash", text: /Libro de muestra/
+    end
+  end
+
+  # A book is a nicety; the account is the point.
+  test "a sample that will not install still leaves the reader signed in" do
+    corrupt = Tempfile.new([ "broken", ".json.gz" ])
+    corrupt.write("not gzipped json at all")
+    corrupt.close
+    DemoBook.path = Pathname.new(corrupt.path)
+
+    assert_difference -> { User.count }, 1 do
+      post registration_path, params: valid_params
+    end
+
+    assert_redirected_to root_path
+    follow_redirect!
+    assert_select ".topbar__brand", text: "Lector"
+    assert_equal 0, new_user.books.count
+  ensure
+    DemoBook.path = nil
+    corrupt&.unlink
   end
 
   test "the email address is normalized before it is stored" do
@@ -81,6 +114,10 @@ class RegistrationTest < ActionDispatch::IntegrationTest
   end
 
   private
+
+  def new_user
+    User.find_by(email_address: "nuevo@example.com")
+  end
 
   def valid_params(overrides = {})
     {

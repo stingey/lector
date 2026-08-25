@@ -15,7 +15,7 @@ class BookIngestor
     @book = book
     @lemma_ids = {}
     @image_ids = {}
-    @lemma_stats = {}
+    @rollup = LemmaRollup.new
     @block_position = 0
     @word_count = 0
   end
@@ -33,7 +33,7 @@ class BookIngestor
       end
     end
 
-    write_lemma_stats
+    @rollup.write!(book.id)
 
     book.update!(
       status: "ready",
@@ -184,47 +184,11 @@ class BookIngestor
     result.rows.to_h { |id, block_id, position| [ [ block_id, position ], id ] }
   end
 
-  # Counted while the words are in hand. Only a few thousand lemmas make up a novel,
-  # so this stays small enough to hold for the length of an ingest.
+  # Counted while the words are in hand, since blocks.words cannot be grouped by later.
   def accumulate_lemma_stats(buffer, block_ids)
     buffer.each do |payload|
-      block_id = block_ids.fetch(payload["position"])
-
-      payload["words"].each do |word|
-        lemma_id = word["l"]
-        next if lemma_id.blank?
-
-        stat = (@lemma_stats[lemma_id] ||= {
-          count: 0,
-          surfaces: Hash.new(0),
-          sample_block_id: block_id,
-          sample_word_position: word["p"]
-        })
-
-        stat[:count] += 1
-        stat[:surfaces][word["w"]] += 1
-      end
+      @rollup.add(block_ids.fetch(payload["position"]), payload["words"])
     end
-  end
-
-  def write_lemma_stats
-    return if @lemma_stats.empty?
-
-    now = Time.current
-    rows = @lemma_stats.map { |lemma_id, stat|
-      {
-        book_id: book.id,
-        lemma_id: lemma_id,
-        count: stat[:count],
-        surfaces: stat[:surfaces],
-        sample_block_id: stat[:sample_block_id],
-        sample_word_position: stat[:sample_word_position],
-        created_at: now,
-        updated_at: now
-      }
-    }
-
-    rows.each_slice(1000) { |slice| BookLemma.insert_all(slice, unique_by: %i[book_id lemma_id]) }
   end
 
   # The word array the reader reads back. Numbered across the whole block rather than
